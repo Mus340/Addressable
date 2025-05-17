@@ -1,18 +1,33 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using UniRx;
 using UnityEngine;
 
-public class ColorMatchContent : MonoBehaviour
+
+public class ColorMatchContent : IGameContent
 {
-    // Start is called before the first frame update
-    void Start()
+    public CompositeDisposable _disposable = new CompositeDisposable();
+
+    public IObservable<Void> OnStart => _onStart;
+    public ISubject<Void> _onStart = new Subject<Void>();
+    
+    public void OnInitialized()
+    {
+        _onStart.OnNext(Void.Empty);
+    }
+
+    public void OnEnd()
     {
         
     }
 
-    // Update is called once per frame
-    void Update()
+    public void OnBegin()
     {
         
+    }
+
+    public void OnSubscribe()
+    {
     }
 }
