@@ -11,6 +11,7 @@ public class Main : MonoBehaviour
     public void Start()
     {
         Initialized();
+        dsfdsf
     }
 
     private void Initialized()
