@@ -5,7 +5,7 @@ using UniRx;
 using UnityEngine;
 
 
-public class ColorMatchContent : IGameContent
+public class ColorMatchContent : MonoBehaviour,IGameContent
 {
     public CompositeDisposable _disposable = new CompositeDisposable();
 
