@@ -1,12 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UISettingPopup : UIPopupPanel
+public class UIGameList : UICommonPanel
 {
-    public void Start()
-	{
-		
-	}
-
+    
 }

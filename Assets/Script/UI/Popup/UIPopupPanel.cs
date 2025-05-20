@@ -2,11 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UISettingPopup : UIPopupPanel
+public class UIPopupPanel : MonoBehaviour
 {
-    public void Start()
-	{
-		
-	}
-
+    
 }
