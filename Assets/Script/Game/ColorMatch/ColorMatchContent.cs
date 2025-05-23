@@ -17,18 +17,19 @@ public class ColorMatchContent : GameContent
     
     private IDisposable _timerDisposable;
     public ReactiveProperty<float> TimeLeft {get; private set;}
-
     
     public ColorMatchItem colorMatchItem;
     private Dictionary<int,ColorMatchItem> _colorMatchItems;
     private int _answerIndex;
+    
     public int Level {get; private set;}
+    public int MaxLevel {get; private set;}
 
     private readonly int TEMP_ITEM_COUNT = 4;
     
     public override void Initialized()
     {
-        Level = 1;
+        Level = Main.Ins.MainData.GetData<int>(nameof(GameType.ColorMatch),"Score");
         
         colorMatchItem.gameObject.SetActive(false);
         _colorMatchItems = new Dictionary<int, ColorMatchItem>();
@@ -98,6 +99,12 @@ public class ColorMatchContent : GameContent
     private void Success()
     {
         MoveNextStage();
+        var curMax = Main.Ins.MainData.GetData<int>(nameof(GameType.ColorMatch), "Score");
+        if (Level > curMax)
+        {
+            Main.Ins.MainData.SetData(nameof(GameType.ColorMatch), "Score", curMax + 1);
+            Main.Ins.MainData.Save();
+        }
     }
     
     private void Fail()
