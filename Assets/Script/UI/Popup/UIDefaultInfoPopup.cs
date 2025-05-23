@@ -23,7 +23,7 @@ public class UIDefaultInfoPopup : UIPopupPanel
     private void EnterGame()
     {
         gameObject.SetActive(false);
-        Main.Ins.EnterGame(_gameType);
+        Main.Ins.MainGame.EnterGame(_gameType);
     }
 
 }

@@ -6,39 +6,32 @@ using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIColorMatch : MonoBehaviour, IDisposable
+public class UIColorMatch : UIContentPanel
 {
     public TextMeshProUGUI titleText;
     public TextMeshProUGUI levelText;
-    
-    private CompositeDisposable _disposable = new CompositeDisposable();
 
-    private void Awake()
+    public Slider timerSlider;
+    
+    protected override void Initialize()
     {
         titleText.text = $"Color Match";
     }
-    
-    private void OnEnable()
+
+    protected override void Enter()
     {
-        var game = Main.Ins.GameContentProvider.GetGameContent<ColorMatchContent>(GameType.ColorMatch);
-        game.OnBegin.Subscribe((_) =>
-        {
-            levelText.text = $"Level.{game.Level}";
-        }).AddTo(_disposable);
-        
+        var game = Main.Ins.MainGame.GameContentProvider.GetGameContent<ColorMatchContent>(GameType.ColorMatch);
+        levelText.text = $"Level {game.Level}";
         game.OnNext.Subscribe((_) =>
         {
-            levelText.text = $"Level.{game.Level}";
-        }).AddTo(_disposable);
-    }
-
-    private void OnDisable()
-    {
-        Dispose();
-    }
-
-    public void Dispose()
-    {
-        _disposable?.Dispose();
+            levelText.text = $"Level {game.Level}";
+        }).AddTo(Disposable);
+        
+        
+        timerSlider.maxValue = ColorMatchData.TimerTime;
+        timerSlider.value = ColorMatchData.TimerTime;
+        game.TimeLeft
+            .Subscribe(value => timerSlider.value = value)
+            .AddTo(this);
     }
 }

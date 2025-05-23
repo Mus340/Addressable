@@ -8,8 +8,10 @@ public class UIReturnToLobbyPopup : UIPopupPanel
 {
     public Button closeButton;
     public Button returnButton;
-
-
+    
+    private Action _closeEvent;
+    private Action _returnEvent;
+    
     private void Start()
     {
         closeButton.onClick.RemoveAllListeners();
@@ -18,14 +20,29 @@ public class UIReturnToLobbyPopup : UIPopupPanel
         returnButton.onClick.AddListener(ReturnToLobby);
     }
 
+    public void AddCloseEvent(Action onClose)
+    {
+        this._closeEvent = onClose;
+    }
+
+    public void AddReturnToLobbyEvent(Action onReturn)
+    {
+        this._returnEvent = onReturn;
+    }
+
+    
     private void Close()
     {
+        _closeEvent?.Invoke();
+        _closeEvent = null;
         this.gameObject.SetActive(false);
     }
     
     private void ReturnToLobby()
     {
-        Main.Ins.ReturnToLobby();
+        _returnEvent?.Invoke();
+        _returnEvent = null;
+        Main.Ins.MainGame.ReturnToLobby();
         gameObject.SetActive(false);
     }
 }

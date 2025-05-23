@@ -16,7 +16,10 @@ public class UIReturnToLobbyButton : MonoBehaviour
     
     private void OpenPopup()
     {
-        var popup = UIMain.Ins.UiPopup.GetPopup(PopupType.ReturnToLobby);
+        var popup = UIMain.Ins.UiPopup.GetPopup<UIReturnToLobbyPopup>(PopupType.ReturnToLobby);
+        Main.Ins.MainTime.Pause();
+        popup.AddCloseEvent(Main.Ins.MainTime.Resume);
+        popup.AddReturnToLobbyEvent(Main.Ins.MainTime.Resume);
         popup.gameObject.SetActive(true);
     }
 }

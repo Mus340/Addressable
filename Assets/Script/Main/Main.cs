@@ -19,40 +19,30 @@ public class Main : MonoBehaviour
         }
     }
 
-    public GameContentProvider GameContentProvider { get; private set; }
-    public GameType? CurGameType { get; private set; }
+    public MainGame MainGame { get; private set; }
+    public MainTime MainTime { get; private set; }
+    
+    public bool LoadComplete { get; private set; } = false;
+    private AsyncSubject<Unit> _onLoadComplete = new AsyncSubject<Unit>();
+    public IObservable<Unit> OnLoadComplete => _onLoadComplete;
     
     private void Awake()
     {
         Initialize();
+        OnLoadComplete.Subscribe((_) =>
+        {
+            LoadComplete = true;
+        }).AddTo(this);
+        _onLoadComplete.OnNext(Unit.Default);
+        _onLoadComplete.OnCompleted();
+        _onLoadComplete.Dispose();
+        _onLoadComplete = null;
     }
+
 
     private void Initialize()
     {
-        GameContentProvider = FindObjectOfType<GameContentProvider>();
-    }
-
-    public void EnterGame(GameType type)
-    {
-        if (CurGameType.HasValue)
-        {
-            return;
-        }
-        CurGameType = type;
-        var game = GameContentProvider.GetGameContent(type);
-        game.Initialized();
-        game.Begin();
-        game.gameObject.SetActive(true);
-    }
-
-    public void ReturnToLobby()
-    {
-        if (CurGameType.HasValue)
-        {
-            var game = GameContentProvider.GetGameContent(CurGameType.Value);
-            game.End();
-            game.gameObject.SetActive(false);
-            CurGameType = null;
-        }
+        MainGame = FindObjectOfType<MainGame>();
+        MainTime = FindObjectOfType<MainTime>();
     }
 }

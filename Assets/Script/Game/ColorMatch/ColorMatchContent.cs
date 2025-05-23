@@ -2,20 +2,22 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UniRx;
-using Unity.VisualScripting.Dependencies.NCalc;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-
+public static class ColorMatchData
+{
+    public static int TimerTime = 5;
+    
+}
 public class ColorMatchContent : GameContent
 {
-    private enum ColorType
-    {
-        Red, Orange, Yellow, Green, Blue, Indigo, Violet
-    }
-    
     public IObservable<int> OnNext => _onNext;
     private ISubject<int> _onNext = new Subject<int>();
+    
+    private IDisposable _timerDisposable;
+    public ReactiveProperty<float> TimeLeft {get; private set;}
+
     
     public ColorMatchItem colorMatchItem;
     private Dictionary<int,ColorMatchItem> _colorMatchItems;
@@ -23,10 +25,11 @@ public class ColorMatchContent : GameContent
     public int Level {get; private set;}
 
     private readonly int TEMP_ITEM_COUNT = 4;
+    
     public override void Initialized()
     {
         Level = 1;
-
+        
         colorMatchItem.gameObject.SetActive(false);
         _colorMatchItems = new Dictionary<int, ColorMatchItem>();
         for (int i = 0; i < TEMP_ITEM_COUNT; i++)
@@ -45,28 +48,33 @@ public class ColorMatchContent : GameContent
             Destroy(item.Value.gameObject);
         }
         _colorMatchItems.Clear();
-        _onEnd.OnNext(new Void());
+        
+        TimeLeft?.Dispose();
+        TimeLeft = null;
+        _timerDisposable?.Dispose();
+        _timerDisposable = null;
     }
     public override void Begin()
     {
-        _onBegin.OnNext(Void.Empty);
-        StartStage(Level);
-    }
-
-    public override void Subscribe()
-    {
+        TimeLeft = new ReactiveProperty<float>();
+        _timerDisposable = new CompositeDisposable();
         
+        StartStage(Level);
+        StartTimer(ColorMatchData.TimerTime);
     }
 
     private void StartStage(int level)
     {
+        TimeLeft.Value = ColorMatchData.TimerTime;
         _answerIndex = Random.Range(0, _colorMatchItems.Count);
-        var color = GetRandomColor();
+        var color = GetColor(level);
         foreach (var item in _colorMatchItems)
         {
             item.Value.SetItem(color);
         }
-        _colorMatchItems[_answerIndex].SetItem(Color.white);
+        var fadeFactor = Mathf.Lerp(1f, 0.05f, Mathf.Log(level, 50));
+        var lerpColor = Color.Lerp(color, Color.white, fadeFactor);
+        _colorMatchItems[_answerIndex].SetItem(lerpColor);
     }
     private void MoveNextStage()
     {
@@ -80,12 +88,10 @@ public class ColorMatchContent : GameContent
         if (_answerIndex == select)
         {
             Success();
-            Debug.Log("Success");
         }
         else
         {
             Fail();
-            Debug.Log("Fail");
         }
     }
     
@@ -96,23 +102,41 @@ public class ColorMatchContent : GameContent
     
     private void Fail()
     {
-        Main.Ins.ReturnToLobby();
+        Main.Ins.MainGame.ReturnToLobby();
     }
-    
-    private Color GetRandomColor()
+
+    private void StartTimer(float time)
     {
-        var selectColor = (ColorType)Random.Range(0, Enum.GetValues(typeof(ColorType)).Length);
-        var baseColor = Color.white;
-        switch (selectColor)
+        TimeLeft.Value = time;
+        _timerDisposable = Observable
+            .Interval(TimeSpan.FromSeconds(0.01f))
+            .TakeWhile(_ => TimeLeft.Value > 0)
+            .Subscribe(_ =>
+            {
+                TimeLeft.Value -= 0.01f;
+                TimeLeft.Value = Mathf.Max(TimeLeft.Value, 0f);
+
+                if (TimeLeft.Value <= 0)
+                {
+                    Fail();
+                }
+            })
+            .AddTo(this);
+    }
+
+    private Color GetColor(int level)
+    {
+        var color = Color.white;
+        switch ((level-1) % 7)
         {
-            case ColorType.Red:    baseColor = new Color(1f, 0.4f, 0.4f); break;
-            case ColorType.Orange: baseColor = new Color(1f, 0.6f, 0.3f); break;
-            case ColorType.Yellow: baseColor = new Color(1f, 1f, 0.5f); break;
-            case ColorType.Green:  baseColor = new Color(0.5f, 1f, 0.5f); break;
-            case ColorType.Blue:   baseColor = new Color(0.5f, 0.7f, 1f); break;
-            case ColorType.Indigo: baseColor = new Color(0.6f, 0.5f, 1f); break;
-            case ColorType.Violet: baseColor = new Color(0.8f, 0.5f, 1f); break;
+            case 0: color = new Color(1f, 0.4f, 0.4f); break;
+            case 1: color = new Color(1f, 0.6f, 0.3f); break;
+            case 2: color = new Color(1f, 1f, 0.5f); break;
+            case 3: color = new Color(0.5f, 1f, 0.5f); break;
+            case 4: color = new Color(0.5f, 0.7f, 1f); break;
+            case 5: color = new Color(0.6f, 0.5f, 1f); break;
+            case 6: color = new Color(0.8f, 0.5f, 1f); break;
         }
-        return baseColor;
+        return color;
     }
 }

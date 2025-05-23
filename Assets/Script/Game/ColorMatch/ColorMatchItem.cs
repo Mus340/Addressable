@@ -39,7 +39,7 @@ public class ColorMatchItem : MonoBehaviour, IPointerClickHandler
     
     public void OnPointerClick(PointerEventData eventData)
     {
-        var game = Main.Ins.GameContentProvider.GetGameContent<ColorMatchContent>(GameType.ColorMatch);
+        var game = Main.Ins.MainGame.GameContentProvider.GetGameContent<ColorMatchContent>(GameType.ColorMatch);
         game.Select(_index);
     }
 }
