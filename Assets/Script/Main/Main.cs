@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Firebase.Extensions;
 using UniRx;
 using UnityEngine;
 
@@ -33,21 +34,28 @@ public class Main : MonoBehaviour
     }
 
 
-    private void Initialize()
+    private async void Initialize()
     {
         MainGame = FindObjectOfType<MainGame>();
         MainTime = FindObjectOfType<MainTime>();
         MainData = FindObjectOfType<MainData>();
-        
         
         OnLoadComplete.Subscribe((_) =>
         {
             LoadComplete = true;
         }).AddTo(this);
         
-        _onLoadComplete.OnNext(Unit.Default);
-        _onLoadComplete.OnCompleted();
-        _onLoadComplete.Dispose();
-        _onLoadComplete = null;
+        try
+        {
+            await MainData.Initialize();
+            _onLoadComplete.OnNext(Unit.Default);
+            _onLoadComplete.OnCompleted();
+            _onLoadComplete.Dispose();
+            _onLoadComplete = null;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError("Initialize failed: " + ex);
+        }
     }
 }
