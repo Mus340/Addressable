@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "965861274727",
+    "firebase_url": "https://challengerush-a34bd-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "challengerush-a34bd",
+    "storage_bucket": "challengerush-a34bd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:965861274727:android:f4080de0a465111d2dd0c2",
+        "android_client_info": {
+          "package_name": "com.Mus.ChallengeRush"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-ZTB4ue2-bDagliEo0soBt0V9-AdOjqc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

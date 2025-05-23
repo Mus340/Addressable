@@ -21,6 +21,7 @@ public class Main : MonoBehaviour
 
     public MainGame MainGame { get; private set; }
     public MainTime MainTime { get; private set; }
+    public MainData MainData { get; private set; }
     
     public bool LoadComplete { get; private set; } = false;
     private AsyncSubject<Unit> _onLoadComplete = new AsyncSubject<Unit>();
@@ -29,14 +30,6 @@ public class Main : MonoBehaviour
     private void Awake()
     {
         Initialize();
-        OnLoadComplete.Subscribe((_) =>
-        {
-            LoadComplete = true;
-        }).AddTo(this);
-        _onLoadComplete.OnNext(Unit.Default);
-        _onLoadComplete.OnCompleted();
-        _onLoadComplete.Dispose();
-        _onLoadComplete = null;
     }
 
 
@@ -44,5 +37,17 @@ public class Main : MonoBehaviour
     {
         MainGame = FindObjectOfType<MainGame>();
         MainTime = FindObjectOfType<MainTime>();
+        MainData = FindObjectOfType<MainData>();
+        
+        
+        OnLoadComplete.Subscribe((_) =>
+        {
+            LoadComplete = true;
+        }).AddTo(this);
+        
+        _onLoadComplete.OnNext(Unit.Default);
+        _onLoadComplete.OnCompleted();
+        _onLoadComplete.Dispose();
+        _onLoadComplete = null;
     }
 }
