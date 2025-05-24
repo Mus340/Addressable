@@ -15,14 +15,11 @@ public class MainGame : MonoBehaviour
     private ISubject<Unit> _onEnd = new Subject<Unit>();
     
     public GameType? CurGameType { get; private set; }
-    private void Awake()
-    {
-        Initialize();
-    }
 
-    private void Initialize()
+    public void Initialize()
     {
         GameContentProvider = FindObjectOfType<GameContentProvider>();
+        GameContentProvider.Initialize();
     }
     
     public void EnterGame(GameType type)
@@ -33,7 +30,6 @@ public class MainGame : MonoBehaviour
         }
         CurGameType = type;
         var game = GameContentProvider.GetGameContent(type);
-        game.Initialized();
         game.Begin();
         _onBegin.OnNext(CurGameType.Value);
         game.gameObject.SetActive(true);

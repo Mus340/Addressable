@@ -11,18 +11,14 @@ public class GameContentProvider : MonoBehaviour
 {
     private Dictionary<GameType, GameContent> _games;
     
-    private void Awake()
-    {
-        Initialize();
-    }
-
-    private void Initialize()
+    public void Initialize()
     {
         _games = new Dictionary<GameType, GameContent>();
         foreach (GameType gameType in Enum.GetValues(typeof(GameType)))
         {
             var prefab = Resources.Load<GameContent>($"{ResourcesPath.GamePath}{gameType}");
             var game = Instantiate(prefab, this.transform);
+            game.Initialized();
             game.gameObject.SetActive(false);
             _games.Add(gameType, game);
         }

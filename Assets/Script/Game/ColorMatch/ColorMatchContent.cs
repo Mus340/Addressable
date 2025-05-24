@@ -25,15 +25,13 @@ public class ColorMatchContent : GameContent
     public int Level {get; private set;}
     public int MaxLevel {get; private set;}
 
-    private readonly int TEMP_ITEM_COUNT = 4;
+    private readonly int ITEM_COUNT = 4;
     
     public override void Initialized()
     {
-        Level = Main.Ins.MainData.GetData<int>(nameof(GameType.ColorMatch),"Score");
-        
         colorMatchItem.gameObject.SetActive(false);
         _colorMatchItems = new Dictionary<int, ColorMatchItem>();
-        for (int i = 0; i < TEMP_ITEM_COUNT; i++)
+        for (int i = 0; i < ITEM_COUNT; i++)
         {
             var item = Instantiate(colorMatchItem, colorMatchItem.transform.parent);
             item.gameObject.SetActive(true);
@@ -41,28 +39,27 @@ public class ColorMatchContent : GameContent
             _colorMatchItems.Add(i, item);
         }
     }
+    
+    public override void Begin()
+    {
+        TimeLeft = new ReactiveProperty<float>();
+        _timerDisposable = new CompositeDisposable();
+     
+        Level = 1;
+        MaxLevel = MaxLevel <= 0 ? 1 : Main.Ins.MainData.GetData<int>(nameof(GameType.ColorMatch),"MaxLevel");
 
+        StartStage(Level);
+        StartTimer(ColorMatchData.TimerTime);
+    }
+    
     public override void End()
     {
-        foreach (var item in _colorMatchItems)
-        {
-            Destroy(item.Value.gameObject);
-        }
-        _colorMatchItems.Clear();
-        
         TimeLeft?.Dispose();
         TimeLeft = null;
         _timerDisposable?.Dispose();
         _timerDisposable = null;
     }
-    public override void Begin()
-    {
-        TimeLeft = new ReactiveProperty<float>();
-        _timerDisposable = new CompositeDisposable();
-        
-        StartStage(Level);
-        StartTimer(ColorMatchData.TimerTime);
-    }
+
 
     private void StartStage(int level)
     {
@@ -98,13 +95,13 @@ public class ColorMatchContent : GameContent
     
     private void Success()
     {
-        MoveNextStage();
-        var curMax = Main.Ins.MainData.GetData<int>(nameof(GameType.ColorMatch), "Score");
-        if (Level > curMax)
+        if (Level > MaxLevel)
         {
-            Main.Ins.MainData.SetData(nameof(GameType.ColorMatch), "Score", curMax + 1);
+            MaxLevel = Level;
+            Main.Ins.MainData.SetData(nameof(GameType.ColorMatch), "MaxLevel", Level);
             Main.Ins.MainData.Save();
         }
+        MoveNextStage();
     }
     
     private void Fail()

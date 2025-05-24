@@ -55,6 +55,7 @@ public class Main : MonoBehaviour
         try
         {
             await MainData.Initialize();
+            MainGame.Initialize();
             _onLoadComplete.OnNext(Unit.Default);
             _onLoadComplete.OnCompleted();
             _onLoadComplete.Dispose();
