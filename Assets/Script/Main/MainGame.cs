@@ -35,6 +35,18 @@ public class MainGame : MonoBehaviour
         game.gameObject.SetActive(true);
     }
 
+    public void RetryGame()
+    {
+        if (CurGameType.HasValue)
+        {
+            var game = GameContentProvider.GetGameContent(CurGameType.Value);
+            game.End();
+            _onEnd.OnNext(Unit.Default);
+            game.Begin();
+            _onBegin.OnNext(CurGameType.Value);
+        }
+    }
+    
     public void ReturnToLobby()
     {
         if (CurGameType.HasValue)

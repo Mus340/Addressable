@@ -21,7 +21,7 @@ public class ColorMatchContent : GameContent
     public ColorMatchItem colorMatchItem;
     private Dictionary<int,ColorMatchItem> _colorMatchItems;
     private int _answerIndex;
-    
+    private bool _isEndGame;
     public int Level {get; private set;}
     public int MaxLevel {get; private set;}
 
@@ -44,20 +44,21 @@ public class ColorMatchContent : GameContent
     {
         TimeLeft = new ReactiveProperty<float>();
         _timerDisposable = new CompositeDisposable();
-     
-        Level = 1;
-        MaxLevel = MaxLevel <= 0 ? 1 : Main.Ins.MainData.GetData<int>(nameof(GameType.ColorMatch),"MaxLevel");
 
+        _isEndGame = false;
+        Level = 1;
+        MaxLevel = Main.Ins.MainData.GetData<int>(nameof(GameType.ColorMatch),"MaxLevel");
+        MaxLevel = MaxLevel <= 0 ? 1 : MaxLevel;
+
+        Debug.Log($"{MaxLevel}.ColorMatch Enter");
+        
         StartStage(Level);
         StartTimer(ColorMatchData.TimerTime);
     }
     
     public override void End()
     {
-        TimeLeft?.Dispose();
-        TimeLeft = null;
-        _timerDisposable?.Dispose();
-        _timerDisposable = null;
+        StopTimer();
     }
 
 
@@ -76,25 +77,29 @@ public class ColorMatchContent : GameContent
     }
     private void MoveNextStage()
     {
-        Level++;
         StartStage(Level);
         _onNext.OnNext(Level);
     }
 
     public void Select(int select)
     {
-        if (_answerIndex == select)
+        if (!_isEndGame)
         {
-            Success();
-        }
-        else
-        {
-            Fail();
+            if (_answerIndex == select)
+            {
+                Success();
+            }
+            else
+            {
+                ShowAnswer(select);
+                StartCoroutine(Fail());
+            }
         }
     }
     
     private void Success()
     {
+        Level++;
         if (Level > MaxLevel)
         {
             MaxLevel = Level;
@@ -104,11 +109,32 @@ public class ColorMatchContent : GameContent
         MoveNextStage();
     }
     
-    private void Fail()
+    private IEnumerator Fail()
     {
-        Main.Ins.MainGame.ReturnToLobby();
+        _isEndGame = true;
+        StopTimer();
+        yield return new WaitForSeconds(2f);
+        var popup = UIMain.Ins.UiPopup.GetPopup<UIColorMatchRetryPopup>(PopupType.ColorMatchRetry);
+        popup.Set(Level, MaxLevel);
+        Main.Ins.MainTime.Pause();
+        popup.AddRetryEvent(Main.Ins.MainTime.Resume);
+        popup.AddExitEvent(Main.Ins.MainTime.Resume);
+        popup.gameObject.SetActive(true);
     }
 
+    private void ShowAnswer(int? select = null)
+    {
+        if (select == null)
+        {
+            _colorMatchItems[_answerIndex].ShowSuccess();
+        }
+        else
+        {
+            _colorMatchItems[select.Value].ShowFail();
+            _colorMatchItems[_answerIndex].ShowSuccess();
+        }
+    }
+    
     private void StartTimer(float time)
     {
         TimeLeft.Value = time;
@@ -122,10 +148,19 @@ public class ColorMatchContent : GameContent
 
                 if (TimeLeft.Value <= 0)
                 {
-                    Fail();
+                    ShowAnswer();
+                    StartCoroutine(Fail());
                 }
             })
             .AddTo(this);
+    }
+
+    private void StopTimer()
+    {
+        TimeLeft?.Dispose();
+        TimeLeft = null;
+        _timerDisposable?.Dispose();
+        _timerDisposable = null;
     }
 
     private Color GetColor(int level)

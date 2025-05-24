@@ -28,5 +28,6 @@ public class UIMain : MonoBehaviour
     private void Initialize()
     {
         UiPopup = FindObjectOfType<UIPopup>();
+        UiPopup.Initialize();
     }
 }

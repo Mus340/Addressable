@@ -11,7 +11,7 @@ public class UIDefaultInfoPopup : UIPopupPanel
     
     private GameType _gameType;
     
-    public void SetData(GameType gameType)
+    public void Set(GameType gameType)
     {
         this._gameType = gameType;
         

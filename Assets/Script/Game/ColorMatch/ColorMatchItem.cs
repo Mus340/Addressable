@@ -25,16 +25,16 @@ public class ColorMatchItem : MonoBehaviour, IPointerClickHandler
         failImage.gameObject.SetActive(false);
     }
 
-    public void SetSuccess()
+    public void ShowSuccess()
     {
         successImage.gameObject.SetActive(true);
         failImage.gameObject.SetActive(false);
     }
 
-    public void SetFail()
+    public void ShowFail()
     {
-        successImage.gameObject.SetActive(true);
-        failImage.gameObject.SetActive(false);
+        successImage.gameObject.SetActive(false);
+        failImage.gameObject.SetActive(true);
     }
     
     public void OnPointerClick(PointerEventData eventData)

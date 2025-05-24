@@ -17,7 +17,7 @@ public class UIColorMatchButton : MonoBehaviour
     private void OpenInfoPopup()
     {
         var popup = UIMain.Ins.UiPopup.GetPopup<UIDefaultInfoPopup>(PopupType.DefaultInfo);
-        popup.SetData(GameType.ColorMatch);
+        popup.Set(GameType.ColorMatch);
         popup.gameObject.SetActive(true);
     }
 }

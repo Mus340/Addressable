@@ -9,17 +9,13 @@ public enum PopupType
     DefaultInfo,
     ColorMatchInfo,
     ReturnToLobby,
+    ColorMatchRetry
 }
 public class UIPopup : MonoBehaviour
 {
     private Dictionary<PopupType, UIPopupPanel> _panels;
 
-    private void Awake()
-    {
-        Initialize();
-    }
-
-    private void Initialize()
+    public void Initialize()
     {
         _panels = new Dictionary<PopupType, UIPopupPanel>();
         foreach (PopupType popupType in Enum.GetValues(typeof(PopupType)))
@@ -29,15 +25,6 @@ public class UIPopup : MonoBehaviour
             popup.gameObject.SetActive(false);
             _panels.Add(popupType, popup);
         }
-    }
-    
-    public UIPopupPanel GetPopup(PopupType type)
-    {
-        if (_panels.TryGetValue(type, out var panel))
-        {
-            return panel;
-        }
-        return null;
     }
 
     public T GetPopup<T>(PopupType type) where T : UIPopupPanel
