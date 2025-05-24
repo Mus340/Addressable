@@ -5,11 +5,6 @@ using UniRx;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public static class ColorMatchData
-{
-    public static int TimerTime = 5;
-    
-}
 public class ColorMatchContent : GameContent
 {
     public IObservable<int> OnNext => _onNext;
@@ -22,10 +17,13 @@ public class ColorMatchContent : GameContent
     private Dictionary<int,ColorMatchItem> _colorMatchItems;
     private int _answerIndex;
     private bool _isEndGame;
-    public int Level {get; private set;}
-    public int MaxLevel {get; private set;}
+    private int _level;
+    
+    public int MaxScore {get; private set;}
+    public int Score {get; private set;}
 
-    private readonly int ITEM_COUNT = 4;
+    private readonly int ITEM_COUNT = 4; 
+    public readonly int TIMER_TIME = 5;
     
     public override void Initialized()
     {
@@ -46,25 +44,22 @@ public class ColorMatchContent : GameContent
         _timerDisposable = new CompositeDisposable();
 
         _isEndGame = false;
-        Level = 1;
-        MaxLevel = Main.Ins.MainData.GetData<int>(nameof(GameType.ColorMatch),"MaxLevel");
-        MaxLevel = MaxLevel <= 0 ? 1 : MaxLevel;
-
-        Debug.Log($"{MaxLevel}.ColorMatch Enter");
+        _level = 1;
+        Score = 0;
+        MaxScore = Main.Ins.MainData.GetData<int>(nameof(GameType.ColorMatch),"MaxScore");
         
-        StartStage(Level);
-        StartTimer(ColorMatchData.TimerTime);
+        StartStage(_level);
+        StartTimer(TIMER_TIME);
     }
     
     public override void End()
     {
         StopTimer();
     }
-
-
+    
     private void StartStage(int level)
     {
-        TimeLeft.Value = ColorMatchData.TimerTime;
+        TimeLeft.Value = TIMER_TIME;
         _answerIndex = Random.Range(0, _colorMatchItems.Count);
         var color = GetColor(level);
         foreach (var item in _colorMatchItems)
@@ -77,8 +72,8 @@ public class ColorMatchContent : GameContent
     }
     private void MoveNextStage()
     {
-        StartStage(Level);
-        _onNext.OnNext(Level);
+        StartStage(_level);
+        _onNext.OnNext(_level);
     }
 
     public void Select(int select)
@@ -99,11 +94,14 @@ public class ColorMatchContent : GameContent
     
     private void Success()
     {
-        Level++;
-        if (Level > MaxLevel)
+        _level++;
+        Score += _level + (int)TimeLeft.Value;
+        
+        Debug.Log($"{_level}.{(int)TimeLeft.Value}.{_level + (int)TimeLeft.Value}");
+        if (Score > MaxScore)
         {
-            MaxLevel = Level;
-            Main.Ins.MainData.SetData(nameof(GameType.ColorMatch), "MaxLevel", Level);
+            MaxScore = Score;
+            Main.Ins.MainData.SetData(nameof(GameType.ColorMatch), "MaxScore", MaxScore);
             Main.Ins.MainData.Save();
         }
         MoveNextStage();
@@ -115,7 +113,7 @@ public class ColorMatchContent : GameContent
         StopTimer();
         yield return new WaitForSeconds(2f);
         var popup = UIMain.Ins.UiPopup.GetPopup<UIColorMatchRetryPopup>(PopupType.ColorMatchRetry);
-        popup.Set(Level, MaxLevel);
+        popup.Set(Score, MaxScore);
         Main.Ins.MainTime.Pause();
         popup.AddRetryEvent(Main.Ins.MainTime.Resume);
         popup.AddExitEvent(Main.Ins.MainTime.Resume);
