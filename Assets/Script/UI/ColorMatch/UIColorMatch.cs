@@ -11,9 +11,7 @@ public class UIColorMatch : UIContentPanel
     public TextMeshProUGUI titleText;
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI maxScoreText;
-
-
-    public Slider timerSlider;
+    public TextMeshProUGUI timerText;
     
     protected override void Initialize()
     {
@@ -30,12 +28,13 @@ public class UIColorMatch : UIContentPanel
             scoreText.text = $"{game.Score}";
             maxScoreText.text = $"{game.MaxScore}";
         }).AddTo(Disposable);
-
-        timerSlider.maxValue = game.TIMER_TIME;
-        timerSlider.value = game.TIMER_TIME;
         
+        timerText.text = $"{game.TIMER_TIME}";
         game.TimeLeft
-            .Subscribe(value => timerSlider.value = value)
+            .Subscribe(value =>
+            {
+                timerText.text = $"{(int)value}";
+            })
             .AddTo(this);
     }
 }
