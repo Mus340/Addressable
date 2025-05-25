@@ -1,18 +1,19 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class ColorMatchItem : MonoBehaviour, IPointerClickHandler
 {
-    public Image itemImage;
+    public Image idleImage;
     public Image successImage;
     public Image failImage;
 
     private int _index;
-
+    
     public void SetIndex(int index)
     {
         _index = index;
@@ -20,7 +21,11 @@ public class ColorMatchItem : MonoBehaviour, IPointerClickHandler
     
     public void SetItem(Color color)
     {
-        itemImage.color = color;
+        idleImage.color = color;
+        successImage.color = color;
+        failImage.color = color;
+        
+        idleImage.gameObject.SetActive(true);
         successImage.gameObject.SetActive(false);
         failImage.gameObject.SetActive(false);
     }
@@ -28,13 +33,15 @@ public class ColorMatchItem : MonoBehaviour, IPointerClickHandler
     public void ShowSuccess()
     {
         successImage.gameObject.SetActive(true);
+        idleImage.gameObject.SetActive(false);
         failImage.gameObject.SetActive(false);
     }
 
     public void ShowFail()
     {
-        successImage.gameObject.SetActive(false);
         failImage.gameObject.SetActive(true);
+        successImage.gameObject.SetActive(false);
+        idleImage.gameObject.SetActive(false);
     }
     
     public void OnPointerClick(PointerEventData eventData)

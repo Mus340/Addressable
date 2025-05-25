@@ -97,7 +97,6 @@ public class ColorMatchContent : GameContent
         _level++;
         Score += _level + (int)TimeLeft.Value;
         
-        Debug.Log($"{_level}.{(int)TimeLeft.Value}.{_level + (int)TimeLeft.Value}");
         if (Score > MaxScore)
         {
             MaxScore = Score;
