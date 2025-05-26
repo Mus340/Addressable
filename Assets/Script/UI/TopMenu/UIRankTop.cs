@@ -19,6 +19,5 @@ public class UIRankTop : MonoBehaviour
     {
         var popup = UIMain.Ins.UiPopup.GetPopup<UIRankingPopup>(PopupType.Ranking);
         popup.gameObject.SetActive(true);
-        popup.ScrollView.refresh();
     }
 }
