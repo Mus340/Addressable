@@ -11,13 +11,6 @@ public class UIColorMatchButton : MonoBehaviour
     private void Awake()
     {
         button.onClick.RemoveAllListeners();
-        button.onClick.AddListener(OpenInfoPopup);
-    }
-
-    private void OpenInfoPopup()
-    {
-        var popup = UIMain.Ins.UiPopup.GetPopup<UIDefaultInfoPopup>(PopupType.DefaultInfo);
-        popup.Set(GameType.ColorMatch);
-        popup.gameObject.SetActive(true);
+        button.onClick.AddListener(() => Main.Ins.MainGame.EnterGame(GameType.ColorMatch));
     }
 }
