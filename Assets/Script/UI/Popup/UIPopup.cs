@@ -6,6 +6,7 @@ using UnityEngine;
 public enum PopupType
 {
     Setting,
+    Ranking,
     DefaultInfo,
     ColorMatchInfo,
     ReturnToLobby,

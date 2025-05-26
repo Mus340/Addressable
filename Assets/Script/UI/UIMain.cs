@@ -20,6 +20,8 @@ public class UIMain : MonoBehaviour
     }
 
     public UIPopup UiPopup {get; private set;}
+    public UILobby UiLobby {get; private set;}
+    
     private void Awake()
     {
         Initialize();
@@ -29,5 +31,7 @@ public class UIMain : MonoBehaviour
     {
         UiPopup = FindObjectOfType<UIPopup>();
         UiPopup.Initialize();
+        UiLobby = FindObjectOfType<UILobby>();
+        UiLobby.Initialize();
     }
 }

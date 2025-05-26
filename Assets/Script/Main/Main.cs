@@ -8,7 +8,7 @@ using UnityEngine;
 /*
  *
  * FLOW CHART
- * success(new max score) -> fail -> 랭킹 갱신 팝업 -> 재도전 팝업
+ * success -> add score(text) 스코어 추가 러프하게 -> (new max score) -> fail -> 랭킹 갱신 팝업 -> 재도전 팝업
  * fail -> 정답 보여주기 -> 1초 -> 재도전 팝업 (나가기, 재도전)
  */
 
