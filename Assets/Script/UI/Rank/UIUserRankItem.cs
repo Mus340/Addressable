@@ -19,7 +19,8 @@ public class UIUserRankItem : MonoBehaviour, IDynamicScrollViewItem
     public void onUpdateItem(int index)
     {
         _index = index;
-        nameText.text = "TempName";
+        nameText.text = Main.Ins.MainRank.RankList[index].UserName;
+        scoreText.text = Main.Ins.MainRank.RankList[index].Score.ToString();
         rankText.text = _index.ToString();
 
         if (index == 0)

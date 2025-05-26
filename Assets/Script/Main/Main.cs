@@ -30,6 +30,7 @@ public class Main : MonoBehaviour
     public MainGame MainGame { get; private set; }
     public MainTime MainTime { get; private set; }
     public MainData MainData { get; private set; }
+    public MainRank MainRank { get; private set; }
     
     public bool LoadComplete { get; private set; } = false;
     private AsyncSubject<Unit> _onLoadComplete = new AsyncSubject<Unit>();
@@ -39,14 +40,13 @@ public class Main : MonoBehaviour
     {
         Initialize();
     }
-
-
+    
     private async void Initialize()
     {
         MainGame = FindObjectOfType<MainGame>();
         MainTime = FindObjectOfType<MainTime>();
         MainData = FindObjectOfType<MainData>();
-        
+        MainRank = FindObjectOfType<MainRank>();
         OnLoadComplete.Subscribe((_) =>
         {
             LoadComplete = true;
@@ -55,6 +55,8 @@ public class Main : MonoBehaviour
         try
         {
             await MainData.Initialize();
+            await MainRank.Load();
+            
             MainGame.Initialize();
             _onLoadComplete.OnNext(Unit.Default);
             _onLoadComplete.OnCompleted();
