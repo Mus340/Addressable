@@ -9,6 +9,7 @@ public class UIUserRankItem : MonoBehaviour, IDynamicScrollViewItem
 {
     public TextMeshProUGUI rankText;
     public TextMeshProUGUI nameText;
+    public TextMeshProUGUI playCountText;
     public TextMeshProUGUI scoreText;
     public Image medalImage;
 
@@ -19,8 +20,10 @@ public class UIUserRankItem : MonoBehaviour, IDynamicScrollViewItem
     public void onUpdateItem(int index)
     {
         _index = index;
-        nameText.text = Main.Ins.MainRank.RankList[index].UserName;
-        scoreText.text = Main.Ins.MainRank.RankList[index].Score.ToString();
+        var rankData = Main.Ins.MainData.UserRankList[index];
+        nameText.text = rankData.Name;
+        scoreText.text = rankData.Score.ToString();
+        //playCountText.text = rankData.PlayCount.ToString();
         rankText.text = _index.ToString();
 
         if (index == 0)

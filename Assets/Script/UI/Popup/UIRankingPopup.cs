@@ -7,20 +7,27 @@ using UnityEngine;
 
 public class UIRankingPopup : UIPopupPanel
 {
+    public UIMyRankItem MyRankItem;
     public DynamicVScrollView ScrollView;
 
     private void Awake()
     {
         if (Main.Ins.LoadComplete)
         {
-            ScrollView.totalItemCount = Main.Ins.MainRank.RankList.Count;
+            ScrollView.totalItemCount = Main.Ins.MainData.UserRankList.Count;
         }
         else
         {
             Main.Ins.OnLoadComplete.Subscribe((_) =>
             {
-                ScrollView.totalItemCount = Main.Ins.MainRank.RankList.Count;
+                ScrollView.totalItemCount = Main.Ins.MainData.UserRankList.Count;
             }).AddTo(this);
         }
+    }
+
+    public void Set()
+    {
+        MyRankItem.Set();
+        ScrollView.refresh();
     }
 }

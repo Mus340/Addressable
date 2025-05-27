@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using UniRx;
 using UnityEngine;
@@ -9,116 +10,97 @@ using Firebase;
 using Firebase.Database;
 using Firebase.Extensions;
 
-public static class FirebaseConfig
+public class UserData
 {
-    public static string DatabaseUrl = "https://firebase-database.firebaseio.com/";
-    public static string Test_ID = "Test";
+    public string Uid;
+    public string Name;
+    public int PlayCount;
+    public int Score;
 }
+
 public class MainData : MonoBehaviour
 {
-    private Dictionary<string, Dictionary<string, object>> _userData = new();
-    private Dictionary<string, Dictionary<string, object>> _dirtyData = new();
     private DatabaseReference _reference;
+    public List<UserData> UserRankList { get; private set; } = new();
     
-    public async Task Initialize()
+    private void Awake()
     {
-        _reference = FirebaseDatabase.DefaultInstance.RootReference;
-
-        var dependencyResult = await FirebaseApp.CheckAndFixDependenciesAsync();
-
-        if (dependencyResult == DependencyStatus.Available)
-        {
-            await LoadUserData();
-        }
-        else
-        {
-            Debug.LogError($"Firebase 초기화 실패: {dependencyResult}");
-        }
+        _reference = FirebaseDatabase.DefaultInstance.GetReference("User");
     }
 
-    
-    private async Task LoadUserData()
+    public async Task Initialize()
     {
         try
         {
-            var snapshot = await _reference.Child("UserData").Child(FirebaseConfig.Test_ID).GetValueAsync();
-            foreach (var content in snapshot.Children)
+            var dependencyResult = await FirebaseApp.CheckAndFixDependenciesAsync();
+            if (dependencyResult == DependencyStatus.Available)
             {
-                if (!_userData.ContainsKey(content.Key))
-                {
-                    _userData[content.Key] = new Dictionary<string, object>();
-                }
-
-                foreach (var entry in content.Children)
-                {
-                    _userData[content.Key][entry.Key] = entry.Value;
-                }
+                await LoadRankUserData();
+                await Main.Ins.MainUser.Load();
             }
-            Debug.Log("UserData Load Complete");
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError(ex);
-        }
-    }
-
-
-    public T GetData<T>(string type, string key)
-    {
-        if (_userData.TryGetValue(type, out var contentDict)) 
-        {
-            if (contentDict.TryGetValue(key, out var rawValue))
+            else
             {
-                try
-                {
-                    return (T)Convert.ChangeType(rawValue, typeof(T));
-                }
-                catch
-                {
-                    Debug.LogError($"Can't convert {key} to type {typeof(T).Name}");
-                }   
+                Debug.LogError($"Firebase 초기화 실패: {dependencyResult}");
             }
         }
-        return default;
+        catch (Exception e)
+        {
+            Debug.LogError($"Firebase 초기화 실패: {e}");
+        }
     }
-
-    public void SetData(string type, string key, object value)
-    {   
-        if (!_userData.ContainsKey(type))
-        {
-            _userData[type] = new Dictionary<string, object>();
-        }
-        _userData[type][key] = value;
-
-        if (!_dirtyData.ContainsKey(type))
-        {
-            _dirtyData[type] = new Dictionary<string, object>();
-        }
-        _dirtyData[type][key] = value;
-    }
-
-    public void Save()
-    {
-        if (_dirtyData.Count == 0)
-        {
-            return;
-        }
-        var userRef = FirebaseDatabase.DefaultInstance.GetReference("UserData").Child(FirebaseConfig.Test_ID);
-        foreach (var typePair in _dirtyData)
-        {
-            var type = typePair.Key;
-            var data = typePair.Value;
-
-            userRef.Child(type).UpdateChildrenAsync(data).ContinueWithOnMainThread(task =>
-            {
-                if (task.IsCompletedSuccessfully == false)
-                {
-                    Debug.LogError($"[{type}] 저장 실패: {task.Exception}");
-                }
-            });
-        }
-        _dirtyData.Clear();
-    }
-
     
+    private async Task LoadRankUserData()
+    {
+        var snapshot = await _reference
+            .OrderByChild("Score")
+            .LimitToLast(500)
+            .GetValueAsync();
+
+        if (snapshot.Exists)
+        {
+            UserRankList.Clear();
+            foreach (var child in snapshot.Children)
+            {
+                var data = JsonUtility.FromJson<UserData>(child.GetRawJsonValue());
+                data.Uid = child.Key;
+                UserRankList.Add(data);
+            }
+            UserRankList = UserRankList
+                .OrderByDescending(data => data.Score)
+                .ToList();
+        }
+    }
+
+    public async Task<UserData> LoadUserData(string uID)
+    {
+        var snapshot = await _reference.Child(uID).GetValueAsync();
+        UserData data = null;
+        if (snapshot.Exists)
+        {
+            data = JsonUtility.FromJson<UserData>(snapshot.GetRawJsonValue());
+            data.Uid = uID;
+        }
+        return data;
+    }
+
+    public void Save(string uID, Dictionary<string, object> data)
+    {
+        _reference.Child(uID).UpdateChildrenAsync(data).ContinueWithOnMainThread(task =>
+        {
+            if (task.IsCompletedSuccessfully == false)
+            {
+                Debug.LogError($"저장 실패: {task.Exception}");
+            }
+        });
+    }
+
+    public int GetRank(string uID)
+    {
+        var rank = UserRankList
+            .OrderByDescending(x => x.Score)
+            .TakeWhile(x => x.Uid != uID)  
+            .Count();
+        return UserRankList.Any(x => x.Uid == uID) ? rank : -1;
+    }
+
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UniRx;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -30,8 +31,20 @@ public class UIMain : MonoBehaviour
     private void Initialize()
     {
         UiPopup = FindObjectOfType<UIPopup>();
-        UiPopup.Initialize();
         UiLobby = FindObjectOfType<UILobby>();
-        UiLobby.Initialize();
+
+        if (Main.Ins.LoadComplete)
+        {
+            UiPopup.Initialize();
+            UiLobby.Initialize();   
+        }
+        else
+        {
+            Main.Ins.OnLoadComplete.Subscribe((_) =>
+            {
+                UiPopup.Initialize();
+                UiLobby.Initialize();   
+            }).AddTo(this);
+        }
     }
 }

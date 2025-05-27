@@ -1317,7 +1317,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 599624814}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2d34a20e64a2a9e44b99b72a6bd74b03, type: 3}
+  m_Script: {fileID: 11500000, guid: 16a611e5cc7d24b4394eff6cf7226af2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &604752475
@@ -2835,6 +2835,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enterButton: {fileID: 534240700334235651}
+  goldRankerText: {fileID: 474013166}
+  silverRankerText: {fileID: 633762231}
+  bronzeRankerText: {fileID: 553940134}
 --- !u!1 &2109106813
 GameObject:
   m_ObjectHideFlags: 0

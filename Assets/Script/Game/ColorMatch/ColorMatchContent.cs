@@ -46,7 +46,7 @@ public class ColorMatchContent : GameContent
         _isEndGame = false;
         _level = 1;
         Score = 0;
-        MaxScore = Main.Ins.MainData.GetData<int>(nameof(GameType.ColorMatch),"MaxScore");
+        MaxScore = Main.Ins.MainUser.GetScore();
         
         StartStage(_level);
         StartTimer(TIMER_TIME);
@@ -54,6 +54,13 @@ public class ColorMatchContent : GameContent
     
     public override void End()
     {
+        if (Score > MaxScore)
+        {
+            MaxScore = Score;
+            Main.Ins.MainUser.SaveScore(MaxScore);
+        }
+        var curPlayCount = Main.Ins.MainUser.GetPlayCount();
+        Main.Ins.MainUser.SavePlayCount(++curPlayCount);
         StopTimer();
     }
     
@@ -96,13 +103,7 @@ public class ColorMatchContent : GameContent
     {
         _level++;
         Score += _level + (int)TimeLeft.Value;
-        
-        if (Score > MaxScore)
-        {
-            MaxScore = Score;
-            Main.Ins.MainData.SetData(nameof(GameType.ColorMatch), "MaxScore", MaxScore);
-            Main.Ins.MainData.Save();
-        }
+
         MoveNextStage();
     }
     
