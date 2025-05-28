@@ -8,7 +8,7 @@ public abstract class UIContentPanel : MonoBehaviour
     
     protected abstract void Initialize();
     protected abstract void Enter();
-    
+
     private void Awake()
     {
         if (Main.Ins.LoadComplete)

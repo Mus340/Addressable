@@ -16,10 +16,20 @@ public class MainGame : MonoBehaviour
     
     public GameType? CurGameType { get; private set; }
 
-    public void Initialize()
+    private void Awake()
     {
         GameContentProvider = FindObjectOfType<GameContentProvider>();
-        GameContentProvider.Initialize();
+        if (Main.Ins.LoadComplete)
+        {
+            GameContentProvider.Initialize();
+        }
+        else
+        {
+            Main.Ins.OnLoadComplete.Subscribe((_) =>
+            {
+                GameContentProvider.Initialize();
+            }).AddTo(this);
+        }
     }
     
     public void EnterGame(GameType type)
