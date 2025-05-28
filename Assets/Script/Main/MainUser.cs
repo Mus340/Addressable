@@ -8,19 +8,22 @@ using UnityEngine;
 
 public class MainUser : MonoBehaviour
 {
-    private UserData _userData;
-    private string _uID;
-
-    public void SetUid(string uId)
-    {
-        this._uID = uId;
-        Debug.Log(this._uID);
-    }
-    public async Task Load()
-    {
-        _userData = await Main.Ins.MainData.LoadUserData(_uID);
-    }
+    private UserData _userData = new();
+    private string userID;
     
+    public async Task Initialize()
+    {
+        userID = Login.Ins.UserId;
+        if (Login.Ins.IsNewUser)
+        {
+            await Main.Ins.MainData.SaveAsync(userID,  _userData.ToDictionary());
+        }
+        else
+        {
+            _userData = await Main.Ins.MainData.LoadUserData(userID);
+        }
+    }
+
     public int GetPlayCount()
     {
         return _userData.PlayCount;
@@ -38,13 +41,13 @@ public class MainUser : MonoBehaviour
 
     public int GetRank()
     {
-        return Main.Ins.MainData.GetRank(_uID);
+        return Main.Ins.MainData.GetRank(userID);
     }
     
     public void SavePlayCount(int count)
     {
         _userData.PlayCount = count;
-        Main.Ins.MainData.Save(_uID, new Dictionary<string, object>
+        Main.Ins.MainData.Save(userID, new Dictionary<string, object>
         {
             { "PlayCount", _userData.PlayCount }
         });
@@ -52,7 +55,7 @@ public class MainUser : MonoBehaviour
     public void SaveScore(int score)
     {
         _userData.Score = score;
-        Main.Ins.MainData.Save(_uID, new Dictionary<string, object>
+        Main.Ins.MainData.Save(userID, new Dictionary<string, object>
         {
             { "Score", _userData.Score }
         });

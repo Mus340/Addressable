@@ -30,9 +30,8 @@ public class Login : MonoBehaviour
     }
     
     private FirebaseAuth _auth;
-    public IObservable<Unit> OnLoadComplete => _onLoadComplete;
-    private AsyncSubject<Unit> _onLoadComplete = new AsyncSubject<Unit>();
-
+    public bool IsNewUser { get; private set; }
+    public string UserId { get; private set; }
     public async Task LoginUser()
     {
         try
@@ -63,26 +62,20 @@ public class Login : MonoBehaviour
     await AuthenticateGooglePlayAsync();
 #endif
         await SignInAnonymouslyAsync();
-        _onLoadComplete.OnNext(Unit.Default);
     }
 
     private async Task SignInAnonymouslyAsync()
     {
-        try
+        var userCredential = await _auth.SignInAnonymouslyAsync();
+        if (userCredential != null && userCredential.User != null)
         {
-            var userCredential = await _auth.SignInAnonymouslyAsync();
-            if (userCredential != null && userCredential.User != null)
-            {
-                Main.Ins.MainUser.SetUid(userCredential.User.UserId);
-            }
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"익명 로그인 실패: {e}");
+            UserId = userCredential.User.UserId;
+            var metadata = userCredential.User.Metadata;
+            IsNewUser = metadata.CreationTimestamp == metadata.LastSignInTimestamp;
         }
     }
 
-    #if UNITY_IOS
+#if UNITY_IOS
     private async Task AuthenticateGameCenterAsync()
     {
         var tcs = new TaskCompletionSource<bool>();

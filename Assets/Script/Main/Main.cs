@@ -5,13 +5,6 @@ using Firebase.Extensions;
 using UniRx;
 using UnityEngine;
 
-/*
- *
- * FLOW CHART
- * success -> add score(text) 스코어 추가 러프하게 -> (new max score) -> fail -> 랭킹 갱신 팝업 -> 재도전 팝업
- * fail -> 정답 보여주기 -> 1초 -> 재도전 팝업 (나가기, 재도전)
- */
-
 public class Main : MonoBehaviour
 {
     private static Main _ins;   
@@ -32,40 +25,30 @@ public class Main : MonoBehaviour
     public MainData MainData { get; private set; }
     public MainUser MainUser { get; private set; }
     
-    public bool LoadComplete { get; private set; } = false;
+    public bool LoadComplete { get; private set; }
     public IObservable<Unit> OnLoadComplete => _onLoadComplete;
-    private AsyncSubject<Unit> _onLoadComplete = new AsyncSubject<Unit>();
+    private Subject<Unit> _onLoadComplete = new Subject<Unit>();
     
     private void Awake()
-    {
-        Initialize();
-    }
-    
-    private async void Initialize()
     {
         MainGame = GetComponent<MainGame>();
         MainTime = GetComponent<MainTime>();
         MainData = GetComponent<MainData>();
         MainUser = GetComponent<MainUser>();
         
-        OnLoadComplete.Subscribe((_) =>
-        {
-            MainGame.Initialize();
-            LoadComplete = true;
-        }).AddTo(this);
+        Initialize();
+    }
 
-        try
-        {
-            await Login.Ins.LoginUser();
-            await MainData.Initialize();
-            _onLoadComplete.OnNext(Unit.Default);
-            _onLoadComplete.OnCompleted();
-            _onLoadComplete.Dispose();
-            _onLoadComplete = null;
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError("Initialize failed: " + ex);
-        }
+    private async void Initialize()
+    {
+        await Login.Ins.LoginUser();
+        await MainData.Initialize();
+        await MainUser.Initialize();
+
+        LoadComplete = true;
+        _onLoadComplete.OnNext(Unit.Default);
+        _onLoadComplete.OnCompleted();
+        _onLoadComplete.Dispose();
+        _onLoadComplete = null;
     }
 }

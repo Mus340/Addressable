@@ -22,17 +22,16 @@ public class UIMain : MonoBehaviour
 
     public UIPopup UiPopup {get; private set;}
     public UILobby UiLobby {get; private set;}
-    
+
     private void Awake()
     {
+        UiPopup = FindObjectOfType<UIPopup>();
+        UiLobby = FindObjectOfType<UILobby>();
         Initialize();
     }
 
     private void Initialize()
     {
-        UiPopup = FindObjectOfType<UIPopup>();
-        UiLobby = FindObjectOfType<UILobby>();
-
         if (Main.Ins.LoadComplete)
         {
             UiPopup.Initialize();

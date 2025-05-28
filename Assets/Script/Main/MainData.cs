@@ -13,9 +13,19 @@ using Firebase.Extensions;
 public class UserData
 {
     public string Uid;
-    public string Name;
-    public int PlayCount;
-    public int Score;
+    public string Name = String.Empty;
+    public int PlayCount = 0;
+    public int Score = 0;
+
+    public Dictionary<string, object> ToDictionary()
+    {
+        return new Dictionary<string, object>()
+        {
+            {"Name",Name},
+            {"PlayCount",PlayCount},
+            {"Score",Score},
+        };
+    }
 }
 
 public class MainData : MonoBehaviour
@@ -25,17 +35,8 @@ public class MainData : MonoBehaviour
 
     public async Task Initialize()
     {
-        try
-        {
-            _reference = FirebaseDatabase.DefaultInstance.GetReference("User");
-            await LoadRankUserData();
-            await Main.Ins.MainUser.Load();
-
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"Firebase 초기화 실패: {e}");
-        }
+        _reference = FirebaseDatabase.DefaultInstance.GetReference("User");
+        await LoadRankUserData();
     }
 
     private async Task LoadRankUserData()
@@ -83,6 +84,18 @@ public class MainData : MonoBehaviour
         });
     }
 
+    public async Task SaveAsync(string uID, Dictionary<string, object> data)
+    {
+        try
+        {
+            await _reference.Child(uID).UpdateChildrenAsync(data);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"저장 실패: {e}");
+        }
+    }
+    
     public int GetRank(string uID)
     {
         var rank = UserRankList
