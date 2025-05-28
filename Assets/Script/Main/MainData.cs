@@ -22,33 +22,22 @@ public class MainData : MonoBehaviour
 {
     private DatabaseReference _reference;
     public List<UserData> UserRankList { get; private set; } = new();
-    
-    private void Awake()
-    {
-        _reference = FirebaseDatabase.DefaultInstance.GetReference("User");
-    }
 
     public async Task Initialize()
     {
         try
         {
-            var dependencyResult = await FirebaseApp.CheckAndFixDependenciesAsync();
-            if (dependencyResult == DependencyStatus.Available)
-            {
-                await LoadRankUserData();
-                await Main.Ins.MainUser.Load();
-            }
-            else
-            {
-                Debug.LogError($"Firebase 초기화 실패: {dependencyResult}");
-            }
+            _reference = FirebaseDatabase.DefaultInstance.GetReference("User");
+            await LoadRankUserData();
+            await Main.Ins.MainUser.Load();
+
         }
         catch (Exception e)
         {
             Debug.LogError($"Firebase 초기화 실패: {e}");
         }
     }
-    
+
     private async Task LoadRankUserData()
     {
         var snapshot = await _reference

@@ -33,8 +33,8 @@ public class Main : MonoBehaviour
     public MainUser MainUser { get; private set; }
     
     public bool LoadComplete { get; private set; } = false;
-    private AsyncSubject<Unit> _onLoadComplete = new AsyncSubject<Unit>();
     public IObservable<Unit> OnLoadComplete => _onLoadComplete;
+    private AsyncSubject<Unit> _onLoadComplete = new AsyncSubject<Unit>();
     
     private void Awake()
     {
@@ -50,14 +50,14 @@ public class Main : MonoBehaviour
         
         OnLoadComplete.Subscribe((_) =>
         {
+            MainGame.Initialize();
             LoadComplete = true;
         }).AddTo(this);
-        
+
         try
         {
+            await Login.Ins.LoginUser();
             await MainData.Initialize();
-            
-            MainGame.Initialize();
             _onLoadComplete.OnNext(Unit.Default);
             _onLoadComplete.OnCompleted();
             _onLoadComplete.Dispose();

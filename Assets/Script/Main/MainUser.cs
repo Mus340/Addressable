@@ -1,16 +1,24 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using UnityEngine;
 
 public class MainUser : MonoBehaviour
 {
-    private readonly string Test_ID = "Test";
     private UserData _userData;
+    private string _uID;
 
+    public void SetUid(string uId)
+    {
+        this._uID = uId;
+        Debug.Log(this._uID);
+    }
     public async Task Load()
     {
-        _userData = await Main.Ins.MainData.LoadUserData(Test_ID);
+        _userData = await Main.Ins.MainData.LoadUserData(_uID);
     }
     
     public int GetPlayCount()
@@ -30,13 +38,13 @@ public class MainUser : MonoBehaviour
 
     public int GetRank()
     {
-        return Main.Ins.MainData.GetRank(Test_ID);
+        return Main.Ins.MainData.GetRank(_uID);
     }
     
     public void SavePlayCount(int count)
     {
         _userData.PlayCount = count;
-        Main.Ins.MainData.Save(Test_ID, new Dictionary<string, object>
+        Main.Ins.MainData.Save(_uID, new Dictionary<string, object>
         {
             { "PlayCount", _userData.PlayCount }
         });
@@ -44,7 +52,7 @@ public class MainUser : MonoBehaviour
     public void SaveScore(int score)
     {
         _userData.Score = score;
-        Main.Ins.MainData.Save(Test_ID, new Dictionary<string, object>
+        Main.Ins.MainData.Save(_uID, new Dictionary<string, object>
         {
             { "Score", _userData.Score }
         });
