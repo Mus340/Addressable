@@ -8,56 +8,63 @@ using UnityEngine;
 
 public class MainUser : MonoBehaviour
 {
-    private UserData _userData = new();
-    private string userID;
+    public static UserData UserDataConfig = new();
     
     public async Task Initialize()
     {
-        userID = Login.Ins.UserId;
         if (Login.Ins.IsNewUser)
         {
-            await Main.Ins.MainData.SaveAsync(userID,  _userData.ToDictionary());
+            await Main.Ins.MainData.SaveAsync(UserDataConfig.Uid, UserDataConfig.ToDictionary());
         }
         else
         {
-            _userData = await Main.Ins.MainData.LoadUserData(userID);
+            UserDataConfig = await Main.Ins.MainData.LoadUserData(UserDataConfig.Uid);
         }
     }
 
     public int GetPlayCount()
     {
-        return _userData.PlayCount;
+        return UserDataConfig.PlayCount;
     }
 
     public int GetScore()
     {
-        return _userData.Score;
+        return UserDataConfig.Score;
     }
 
     public string GetName()
     {
-        return _userData.Name;
+        return UserDataConfig.Name;
     }
 
     public int GetRank()
     {
-        return Main.Ins.MainData.GetRank(userID);
+        return Main.Ins.MainData.GetRank(UserDataConfig.Uid);
+    }
+
+    public void SaveName(string nameStr)
+    {
+        UserDataConfig.Name = nameStr;
+        Main.Ins.MainData.Save(UserDataConfig.Uid, new Dictionary<string, object>
+        {
+            { "Name", UserDataConfig.Name }
+        });
     }
     
     public void SavePlayCount(int count)
     {
-        _userData.PlayCount = count;
-        Main.Ins.MainData.Save(userID, new Dictionary<string, object>
+        UserDataConfig.PlayCount = count;
+        Main.Ins.MainData.Save(UserDataConfig.Uid, new Dictionary<string, object>
         {
-            { "PlayCount", _userData.PlayCount }
+            { "PlayCount", UserDataConfig.PlayCount }
         });
     }
     public void SaveScore(int score)
     {
-        _userData.Score = score;
-        Main.Ins.MainData.Save(userID, new Dictionary<string, object>
+        UserDataConfig.Score = score;
+        Main.Ins.MainData.Save(UserDataConfig.Uid, new Dictionary<string, object>
         {
-            { "Score", _userData.Score }
+            { "Score", UserDataConfig.Score }
         });
     }
 }

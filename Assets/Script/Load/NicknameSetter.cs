@@ -3,28 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class NicknameSetter : MonoBehaviour
 {
-    private static NicknameSetter _ins;
-    public static NicknameSetter Ins
-    {
-        get
-        {
-            if (_ins == null)
-            {
-                _ins = FindObjectOfType<NicknameSetter>();
-            }
-            return _ins;
-        }
-    }
-    
     public TextAsset profanityFile;
     private string[] lines;
     private string LINE_SPLIT_RE = @"\r\n|\n\r|\n|\r";   
+    private TaskCompletionSource<bool> _nicknameEntered;
 
-    void Awake()
+    public async Task OpenNickName()
     {
         if (profanityFile != null)
         {
@@ -34,9 +23,11 @@ public class NicknameSetter : MonoBehaviour
         {
             Debug.LogWarning("비속어 파일이 연결되지 않았습니다.");
             lines = Array.Empty<string>();
-        }
+        }         
+        _nicknameEntered = new TaskCompletionSource<bool>();
+        await _nicknameEntered.Task;
     }
-
+    
     public void SetNickName(string nickname)
     {
         if (nickname.Length > 7)
@@ -59,6 +50,9 @@ public class NicknameSetter : MonoBehaviour
         if (nickname.Equals(cleaned))
         {
             ShowResult("닉네임이 변경되었습니다.");
+            MainUser.UserDataConfig.Name = cleaned;
+            _nicknameEntered.TrySetResult(true);
+            Destroy(this.gameObject);
         }
         else
         {

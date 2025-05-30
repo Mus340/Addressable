@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 public class UINickname : MonoBehaviour
 {
+    public NicknameSetter nicknameSetter;
     public TMP_InputField inputField;
     public Button confirmButton;
 
@@ -19,6 +20,6 @@ public class UINickname : MonoBehaviour
     private void Confirm()
     {
         var nickname = inputField.text;
-        NicknameSetter.Ins.SetNickName(nickname);
+        nicknameSetter.SetNickName(nickname);
     }
 }
