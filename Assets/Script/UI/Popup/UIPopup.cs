@@ -14,6 +14,7 @@ public enum PopupType
 }
 public class UIPopup : MonoBehaviour
 {
+    public Transform parent;
     private Dictionary<PopupType, UIPopupPanel> _panels;
 
     public void Initialize()
@@ -22,7 +23,7 @@ public class UIPopup : MonoBehaviour
         foreach (PopupType popupType in Enum.GetValues(typeof(PopupType)))
         {
             var prefab = Resources.Load<UIPopupPanel>($"{ResourcesPath.PopupPath}{popupType}");
-            var popup = Instantiate(prefab, this.transform);
+            var popup = Instantiate(prefab, parent);
             popup.gameObject.SetActive(false);
             _panels.Add(popupType, popup);
         }

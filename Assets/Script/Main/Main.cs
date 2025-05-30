@@ -29,7 +29,7 @@ public class Main : MonoBehaviour
     public IObservable<Unit> OnLoadComplete => _onLoadComplete;
     private Subject<Unit> _onLoadComplete = new Subject<Unit>();
 
-    public Transform loadCanvas;
+    public Transform nickNameParent;
     private void Awake()
     {
         MainGame = GetComponent<MainGame>();
@@ -45,7 +45,7 @@ public class Main : MonoBehaviour
         await Login.Ins.LoginUser();
         if (Login.Ins.IsNewUser)
         {
-            var nickName = Instantiate(Resources.Load<NicknameSetter>($"{ResourcesPath.NickNamePath}"),loadCanvas);
+            var nickName = Instantiate(Resources.Load<NicknameSetter>($"{ResourcesPath.NickNamePath}"),nickNameParent);
             await nickName.OpenNickName();
         }
         await MainData.Initialize();

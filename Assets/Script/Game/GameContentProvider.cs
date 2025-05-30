@@ -9,6 +9,7 @@ public enum GameType
 }
 public class GameContentProvider : MonoBehaviour
 {
+    public Transform parent;
     private Dictionary<GameType, GameContent> _games;
     
     public void Initialize()
@@ -17,7 +18,7 @@ public class GameContentProvider : MonoBehaviour
         foreach (GameType gameType in Enum.GetValues(typeof(GameType)))
         {
             var prefab = Resources.Load<GameContent>($"{ResourcesPath.GamePath}{gameType}");
-            var game = Instantiate(prefab, this.transform);
+            var game = Instantiate(prefab, parent);
             game.Initialized();
             game.gameObject.SetActive(false);
             _games.Add(gameType, game);
