@@ -9,19 +9,18 @@ using UnityEngine.UI;
 
 public class UIColorMatch : UIContentPanel
 {
-    public TextMeshProUGUI titleText;
-    public TextMeshProUGUI scoreText;
-    public TextMeshProUGUI maxScoreText;
-    public TextMeshProUGUI timerText;
+    public Text scoreText;
+    public Text maxScoreText;
+    public Text timerText;
 
     public GameObject sliderPanel;
     public Slider scoreSlider;
     private Tween _scoreTween;
     
     private int _prevScore;
+    
     protected override void Initialize()
     {
-        titleText.text = $"Color Match";
     }
 
     protected override void Enter()

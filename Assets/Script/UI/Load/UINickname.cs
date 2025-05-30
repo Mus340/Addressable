@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class UINickname : MonoBehaviour
 {
     public NicknameSetter nicknameSetter;
-    public TMP_InputField inputField;
+    public InputField inputField;
     public Button confirmButton;
 
     private void Awake()

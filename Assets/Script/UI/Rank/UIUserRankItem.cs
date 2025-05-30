@@ -7,10 +7,9 @@ using UnityEngine.UI;
 
 public class UIUserRankItem : MonoBehaviour, IDynamicScrollViewItem
 {
-    public TextMeshProUGUI rankText;
-    public TextMeshProUGUI nameText;
-    public TextMeshProUGUI playCountText;
-    public TextMeshProUGUI scoreText;
+    public Text rankText;
+    public Text nameText;
+    public Text scoreText;
     public Image medalImage;
 
     public Sprite[] medalSprites;

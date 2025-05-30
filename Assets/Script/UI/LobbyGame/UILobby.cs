@@ -8,9 +8,9 @@ public class UILobby : MonoBehaviour
 {
     public Button enterButton;
     
-    public TextMeshProUGUI goldRankerText;
-    public TextMeshProUGUI silverRankerText;
-    public TextMeshProUGUI bronzeRankerText;
+    public Text goldRankerText;
+    public Text silverRankerText;
+    public Text bronzeRankerText;
     
     public void Initialize()
     {

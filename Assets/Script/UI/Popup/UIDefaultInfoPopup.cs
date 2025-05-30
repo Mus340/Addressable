@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class UIDefaultInfoPopup : UIPopupPanel
 {
     public Button enterButton;
-    public TextMeshProUGUI titleText;
+    public Text titleText;
     
     private GameType _gameType;
     

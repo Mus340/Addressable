@@ -10,8 +10,8 @@ public class UIColorMatchRetryPopup : UIPopupPanel
     public Button exitButton;
     public Button retryButton;
     
-    public TextMeshProUGUI curScoreText;
-    public TextMeshProUGUI maxScoreText;
+    public Text curScoreText;
+    public Text maxScoreText;
     
     private Action _exitEvent;
     private Action _retryEvent;
