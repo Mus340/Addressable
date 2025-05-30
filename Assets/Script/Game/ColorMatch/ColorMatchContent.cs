@@ -13,8 +13,7 @@ public class ColorMatchContent : GameContent
     private IDisposable _timerDisposable;
     public ReactiveProperty<float> TimeLeft {get; private set;}
     
-    public ColorMatchItem colorMatchItem;
-    private Dictionary<int,ColorMatchItem> _colorMatchItems;
+    public List<ColorMatchItem> colorMatchItemList;
     private int _answerIndex;
     private bool _isEndGame;
     private int _level;
@@ -22,19 +21,13 @@ public class ColorMatchContent : GameContent
     public int MaxScore {get; private set;}
     public int Score {get; private set;}
 
-    private readonly int ITEM_COUNT = 4; 
     public readonly int TIMER_TIME = 5;
     
     public override void Initialized()
     {
-        colorMatchItem.gameObject.SetActive(false);
-        _colorMatchItems = new Dictionary<int, ColorMatchItem>();
-        for (int i = 0; i < ITEM_COUNT; i++)
+        for (int i = 0; i < colorMatchItemList.Count; i++)
         {
-            var item = Instantiate(colorMatchItem, colorMatchItem.transform.parent);
-            item.gameObject.SetActive(true);
-            item.SetIndex(i);
-            _colorMatchItems.Add(i, item);
+            colorMatchItemList[i].SetIndex(i);
         }
     }
     
@@ -67,15 +60,15 @@ public class ColorMatchContent : GameContent
     private void StartStage(int level)
     {
         TimeLeft.Value = TIMER_TIME;
-        _answerIndex = Random.Range(0, _colorMatchItems.Count);
+        _answerIndex = Random.Range(0, colorMatchItemList.Count);
         var color = GetColor(level);
-        foreach (var item in _colorMatchItems)
+        foreach (var item in colorMatchItemList)
         {
-            item.Value.SetItem(color);
+            item.SetItem(color);
         }
         var fadeFactor = Mathf.Lerp(1f, 0.05f, Mathf.Log(level, 50));
         var lerpColor = Color.Lerp(color, Color.white, fadeFactor);
-        _colorMatchItems[_answerIndex].SetItem(lerpColor);
+        colorMatchItemList[_answerIndex].SetItem(lerpColor);
     }
     private void MoveNextStage()
     {
@@ -124,12 +117,12 @@ public class ColorMatchContent : GameContent
     {
         if (select == null)
         {
-            _colorMatchItems[_answerIndex].ShowSuccess();
+            colorMatchItemList[_answerIndex].ShowSuccess();
         }
         else
         {
-            _colorMatchItems[select.Value].ShowFail();
-            _colorMatchItems[_answerIndex].ShowSuccess();
+            colorMatchItemList[select.Value].ShowFail();
+            colorMatchItemList[_answerIndex].ShowSuccess();
         }
     }
     
