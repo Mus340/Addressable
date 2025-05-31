@@ -1,108 +1,27 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using UniRx;
 using UnityEngine;
-using Firebase;
 using Firebase.Database;
-using Firebase.Extensions;
-
-public class UserData
-{
-    public string Uid;
-    public string Name = String.Empty;
-    public int PlayCount = 0;
-    public int Score = 0;
-
-    public Dictionary<string, object> ToDictionary()
-    {
-        return new Dictionary<string, object>()
-        {
-            {"Name",Name},
-            {"PlayCount",PlayCount},
-            {"Score",Score},
-        };
-    }
-}
 
 public class MainData : MonoBehaviour
 {
-    private DatabaseReference _reference;
-    public List<UserData> UserRankList { get; private set; } = new();
+    public FirebaseDatabase Reference { get; private set; }
+    public UserData UserData { get; private set; }
+    public RankData RankData { get; private set; }
+    public NameData NameData { get; private set; }
+
+    private void Awake()
+    {
+        UserData = FindObjectOfType<UserData>();
+        RankData = FindObjectOfType<RankData>();
+        NameData = FindObjectOfType<NameData>();
+    }
 
     public async Task Initialize()
     {
-        _reference = FirebaseDatabase.DefaultInstance.GetReference("User");
-        await LoadRankUserData();
+        Reference = FirebaseDatabase.DefaultInstance;
+        
+        await UserData.Initialize(Reference);
+        await RankData.Initialize(Reference);
     }
-
-    private async Task LoadRankUserData()
-    {
-        var snapshot = await _reference
-            .OrderByChild("Score")
-            .LimitToLast(500)
-            .GetValueAsync();
-
-        if (snapshot.Exists)
-        {
-            UserRankList.Clear();
-            foreach (var child in snapshot.Children)
-            {
-                var data = JsonUtility.FromJson<UserData>(child.GetRawJsonValue());
-                data.Uid = child.Key;
-                UserRankList.Add(data);
-            }
-            UserRankList = UserRankList
-                .OrderByDescending(data => data.Score)
-                .ToList();
-        }
-    }
-
-    public async Task<UserData> LoadUserData(string uID)
-    {
-        var snapshot = await _reference.Child(uID).GetValueAsync();
-        UserData data = null;
-        if (snapshot.Exists)
-        {
-            data = JsonUtility.FromJson<UserData>(snapshot.GetRawJsonValue());
-            data.Uid = uID;
-        }
-        return data;
-    }
-
-    public void Save(string uID, Dictionary<string, object> data)
-    {
-        _reference.Child(uID).UpdateChildrenAsync(data).ContinueWithOnMainThread(task =>
-        {
-            if (task.IsCompletedSuccessfully == false)
-            {
-                Debug.LogError($"저장 실패: {task.Exception}");
-            }
-        });
-    }
-
-    public async Task SaveAsync(string uID, Dictionary<string, object> data)
-    {
-        try
-        {
-            await _reference.Child(uID).UpdateChildrenAsync(data);
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"저장 실패: {e}");
-        }
-    }
-    
-    public int GetRank(string uID)
-    {
-        var rank = UserRankList
-            .OrderByDescending(x => x.Score)
-            .TakeWhile(x => x.Uid != uID)  
-            .Count();
-        return UserRankList.Any(x => x.Uid == uID) ? rank : -1;
-    }
-
 }

@@ -39,7 +39,7 @@ public class ColorMatchContent : GameContent
         _isEndGame = false;
         _level = 1;
         Score = 0;
-        MaxScore = Main.Ins.MainUser.GetScore();
+        MaxScore = Main.Ins.MainData.UserData.UserInfo.Score;
         
         StartStage(_level);
         StartTimer(TIMER_TIME);
@@ -50,10 +50,10 @@ public class ColorMatchContent : GameContent
         if (Score > MaxScore)
         {
             MaxScore = Score;
-            Main.Ins.MainUser.SaveScore(MaxScore);
+            Main.Ins.MainData.UserData.SaveScore(MaxScore);
         }
-        var curPlayCount = Main.Ins.MainUser.GetPlayCount();
-        Main.Ins.MainUser.SavePlayCount(++curPlayCount);
+        var curPlayCount = Main.Ins.MainData.UserData.UserInfo.PlayCount;
+        Main.Ins.MainData.UserData.SavePlayCount(++curPlayCount);
         StopTimer();
     }
     

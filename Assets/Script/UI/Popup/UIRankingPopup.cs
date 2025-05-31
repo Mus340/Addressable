@@ -14,13 +14,13 @@ public class UIRankingPopup : UIPopupPanel
     {
         if (Main.Ins.LoadComplete)
         {
-            ScrollView.totalItemCount = Main.Ins.MainData.UserRankList.Count;
+            ScrollView.totalItemCount = Main.Ins.MainData.RankData.RankList.Count;
         }
         else
         {
             Main.Ins.OnLoadComplete.Subscribe((_) =>
             {
-                ScrollView.totalItemCount = Main.Ins.MainData.UserRankList.Count;
+                ScrollView.totalItemCount = Main.Ins.MainData.RankData.RankList.Count;
             }).AddTo(this);
         }
     }

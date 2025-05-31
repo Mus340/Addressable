@@ -30,6 +30,7 @@ public class Login : MonoBehaviour
     }
     
     private FirebaseAuth _auth;
+    public string UserID { get; private set; }
     public bool IsNewUser { get; private set; }
     public async Task LoginUser()
     {
@@ -68,7 +69,7 @@ public class Login : MonoBehaviour
         var userCredential = await _auth.SignInAnonymouslyAsync();
         if (userCredential != null && userCredential.User != null)
         {
-            MainUser.UserDataConfig.Uid = userCredential.User.UserId;
+            UserID = userCredential.User.UserId;
             var metadata = userCredential.User.Metadata;
             IsNewUser = metadata.CreationTimestamp == metadata.LastSignInTimestamp;
         }

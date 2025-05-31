@@ -23,7 +23,6 @@ public class Main : MonoBehaviour
     public MainGame MainGame { get; private set; }
     public MainTime MainTime { get; private set; }
     public MainData MainData { get; private set; }
-    public MainUser MainUser { get; private set; }
     
     public bool LoadComplete { get; private set; }
     public IObservable<Unit> OnLoadComplete => _onLoadComplete;
@@ -35,7 +34,6 @@ public class Main : MonoBehaviour
         MainGame = GetComponent<MainGame>();
         MainTime = GetComponent<MainTime>();
         MainData = GetComponent<MainData>();
-        MainUser = GetComponent<MainUser>();
         
         Initialize();
     }
@@ -43,13 +41,14 @@ public class Main : MonoBehaviour
     private async void Initialize()
     {
         await Login.Ins.LoginUser();
+        await MainData.Initialize();
         if (Login.Ins.IsNewUser)
         {
+            await MainData.NameData.Initialize(MainData.Reference);
             var nickName = Instantiate(Resources.Load<NicknameSetter>($"{ResourcesPath.NickNamePath}"),nickNameParent);
             await nickName.OpenNickName();
         }
-        await MainData.Initialize();
-        await MainUser.Initialize();
+        await AdsManager.Ins.InitializeAdmobAsync();
 
         LoadComplete = true;
         _onLoadComplete.OnNext(Unit.Default);

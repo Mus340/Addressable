@@ -50,7 +50,7 @@ public class NicknameSetter : MonoBehaviour
         if (nickname.Equals(cleaned))
         {
             ShowResult("닉네임이 변경되었습니다.");
-            MainUser.UserDataConfig.Name = cleaned;
+            Main.Ins.MainData.UserData.SaveName(nickname);
             _nicknameEntered.TrySetResult(true);
             Destroy(this.gameObject);
         }
