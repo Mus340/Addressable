@@ -15,9 +15,10 @@ public class UIMyRankItem : MonoBehaviour
 
     public void Set()
     {
-        nameText.text = Main.Ins.MainData.UserData.UserInfo.Name;
+        var userName = Main.Ins.MainData.UserData.UserInfo.Name;
+        nameText.text = userName;
         scoreText.text = Main.Ins.MainData.UserData.UserInfo.Score.ToString();
-        var rank = Main.Ins.MainData.RankData.GetRankNumber(Login.Ins.UserID);
+        var rank = Main.Ins.MainData.RankData.GetRankNumber(userName);
         rankText.text = rank == -1 ? "-" : rank.ToString();
     }
 }

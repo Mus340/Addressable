@@ -21,8 +21,7 @@ public class UIUserRankItem : MonoBehaviour, IDynamicScrollViewItem
         _index = index;
         var rankData = Main.Ins.MainData.RankData.RankList[index];
         nameText.text = rankData.Name;
-        scoreText.text = rankData.Score.ToString();
-        //playCountText.text = rankData.PlayCount.ToString();
+        scoreText.text = rankData.MaxScore.ToString();
         rankText.text = _index.ToString();
 
         if (index == 0)

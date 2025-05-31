@@ -44,7 +44,7 @@ public class Main : MonoBehaviour
         await MainData.Initialize();
         if (Login.Ins.IsNewUser)
         {
-            await MainData.NameData.Initialize(MainData.Reference);
+            MainData.NameData.Initialize(MainData.Reference);
             var nickName = Instantiate(Resources.Load<NicknameSetter>($"{ResourcesPath.NickNamePath}"),nickNameParent);
             await nickName.OpenNickName();
         }

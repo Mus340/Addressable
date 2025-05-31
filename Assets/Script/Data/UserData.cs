@@ -8,13 +8,15 @@ using UnityEngine;
 
 
 
-public class UserData : MonoBehaviour, Data
+public class UserData : MonoBehaviour
 {
     public class User : ApplyToDictionary<User>
     {
         public string Name;
         public int PlayCount;
         public int Score;
+        public string FirstTime;
+        public string LastTime;
     }
 
     public User UserInfo { get; private set; } = new();
@@ -24,17 +26,20 @@ public class UserData : MonoBehaviour, Data
     {
         _reference = reference.GetReference("User");
         await CheckUser();
-    }   
-    
+    }
+
     private async Task CheckUser()
     {
         if (Login.Ins.IsNewUser)
         {
+            UserInfo.FirstTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            UserInfo.LastTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             await SaveAsync(UserInfo.ToDictionary());
         }
         else
         {
             await Load();
+            SaveLastTime(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
         }
     }
 
@@ -72,8 +77,11 @@ public class UserData : MonoBehaviour, Data
             Debug.LogError($"저장 실패: {e}");
         }
     }
-    
-    
+    public void SaveLastTime(string nowTime)
+    {
+        UserInfo.LastTime = nowTime;
+        Save(new Dictionary<string, object> {{nameof(User.LastTime), UserInfo.LastTime}});
+    }
     public void SaveName(string nameStr)
     {
         UserInfo.Name = nameStr;

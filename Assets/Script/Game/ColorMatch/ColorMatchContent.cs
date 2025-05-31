@@ -51,6 +51,7 @@ public class ColorMatchContent : GameContent
         {
             MaxScore = Score;
             Main.Ins.MainData.UserData.SaveScore(MaxScore);
+            Main.Ins.MainData.RankData.SaveMaxScore(MaxScore);
         }
         var curPlayCount = Main.Ins.MainData.UserData.UserInfo.PlayCount;
         Main.Ins.MainData.UserData.SavePlayCount(++curPlayCount);
