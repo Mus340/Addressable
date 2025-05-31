@@ -30,4 +30,12 @@ public class UIRankingPopup : UIPopupPanel
         MyRankItem.Set();
         ScrollView.refresh();
     }
+
+    public async void Refresh()
+    {
+        await Main.Ins.MainData.RankData.LoadRanker();
+        ScrollView.totalItemCount = Main.Ins.MainData.RankData.RankList.Count;
+        Set();
+        Debug.Log("하이");
+    }
 }

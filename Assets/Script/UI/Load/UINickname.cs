@@ -8,18 +8,36 @@ using UnityEngine.UI;
 public class UINickname : MonoBehaviour
 {
     public NicknameSetter nicknameSetter;
-    public InputField inputField;
+    public TMP_InputField inputField;
     public Button confirmButton;
 
     private void Awake()
     {
         confirmButton.onClick.RemoveAllListeners();
-        confirmButton.onClick.AddListener(Confirm);
+        confirmButton.onClick.AddListener(() =>
+        {
+            StartCoroutine(ConfirmAfterInputSettled());
+        });
+
+        inputField.onEndEdit.RemoveAllListeners();
+        inputField.onEndEdit.AddListener((_) =>
+        {
+            StartCoroutine(ConfirmAfterInputSettled());
+        });
     }
 
-    private void Confirm()
+    private IEnumerator ConfirmAfterInputSettled()
     {
-        var nickname = inputField.text;
-        nicknameSetter.SetNickName(nickname);
+        yield return new WaitForEndOfFrame();
+
+        var nickname = inputField.text.Trim();
+        if (!string.IsNullOrEmpty(nickname))
+        {
+            nicknameSetter.SetNickName(nickname);
+        }
+        else
+        {
+            Debug.LogWarning("닉네임이 비어 있습니다.");
+        }
     }
 }

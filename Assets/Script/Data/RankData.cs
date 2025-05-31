@@ -21,10 +21,10 @@ public class RankData : MonoBehaviour
     public async Task Initialize(FirebaseDatabase reference)
     {
         _reference = reference.GetReference("Rank");
-        await LoadRankUserData();
+        await LoadRanker();
     }
     
-    private async Task LoadRankUserData()
+    public async Task LoadRanker()
     {
         var snapshot = await _reference
             .OrderByChild("MaxScore")
