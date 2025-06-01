@@ -54,6 +54,7 @@ public class MainGame : MonoBehaviour
             _onEnd.OnNext(Unit.Default);
             game.Begin();
             _onBegin.OnNext(CurGameType.Value);
+            AdsManager.Ins.TryShowAdOnGameOver();
         }
     }
     
@@ -66,6 +67,7 @@ public class MainGame : MonoBehaviour
             _onEnd.OnNext(Unit.Default);
             game.gameObject.SetActive(false);
             CurGameType = null;
+            AdsManager.Ins.TryShowAdOnGameOver();
         }
     }
 }

@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class UIRankTop : MonoBehaviour
 {
-    public Button _button;
+    private Button _button;
 
     private void Awake()
     {
