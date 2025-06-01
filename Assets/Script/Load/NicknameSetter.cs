@@ -28,16 +28,16 @@ public class NicknameSetter : MonoBehaviour
         await _nicknameEntered.Task;
     }
 
-    public async void SetNickName(string nickName)
+    public async void SetNickName(string nickName, Action<string,bool> result)
     {
-        await Check(nickName);
+        await Check(nickName, result);
     }
     
-    public async Task Check(string nickname)
+    public async Task Check(string nickname, Action<string,bool> result)
     {
         if (nickname.Length > 10)
         {
-            ShowResult("닉네임은 10자 이하로 입력해주세요.");
+            result?.Invoke("닉네임은 10자 이하로 입력해주세요.",false);
             return;
         }
         
@@ -45,22 +45,21 @@ public class NicknameSetter : MonoBehaviour
         {
             if (!string.IsNullOrWhiteSpace(word) && nickname.Contains(word))
             {
-                ShowResult("비속어는 사용할 수 없습니다.");
+                result?.Invoke("비속어는 사용할 수 없습니다.",false);
                 return;
             }
-        }
-
-        if (await Main.Ins.MainData.NameData.CheckNickNameAsync(nickname))
-        {
-            ShowResult("중복된 닉네임입니다");
-            return;
         }
         
         string cleaned = Regex.Replace(nickname, @"[^a-zA-Z0-9가-힣 ]", "");
 
         if (nickname.Equals(cleaned))
-        {
-            ShowResult("닉네임이 변경되었습니다.");
+        {       
+            if (await Main.Ins.MainData.NameData.CheckNickNameAsync(nickname))
+            {
+                result?.Invoke("중복된 닉네임입니다",false);
+                return;
+            }
+            result?.Invoke("닉네임이 변경되었습니다.",true);
             
             Main.Ins.MainData.UserData.SaveName(nickname);
             Main.Ins.MainData.NameData.Save(nickname);
@@ -71,12 +70,7 @@ public class NicknameSetter : MonoBehaviour
         }
         else
         {
-            ShowResult("특수문자는 사용할 수 없습니다.");
+            result?.Invoke("특수문자는 사용할 수 없습니다.",false);
         }
-    }
-    
-    private void ShowResult(string message)
-    {
-        Debug.Log(message);
     }
 }
