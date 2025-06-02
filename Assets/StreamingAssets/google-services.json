@@ -13,7 +13,12 @@
           "package_name": "com.Mus.ChallengeRush"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "965861274727-duhb0qajgcnivg34k5nj74fq24c2uat5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyD-ZTB4ue2-bDagliEo0soBt0V9-AdOjqc"
@@ -21,7 +26,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "965861274727-duhb0qajgcnivg34k5nj74fq24c2uat5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
