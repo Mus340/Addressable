@@ -13,7 +13,7 @@ public class UIRankPos : MonoBehaviour
     public void Set(int rank)
     {
         _rank = rank;
-        text.text = _rank.ToString();
+        text.text = (_rank + 1).ToString();
         Color color;
         if (_rank == 0)
         {

@@ -28,7 +28,7 @@ public class RankData : MonoBehaviour
     {
         var snapshot = await _reference
             .OrderByChild("MaxScore")
-            .LimitToLast(500)
+            .LimitToLast(200)
             .GetValueAsync();
 
         if (snapshot.Exists)
