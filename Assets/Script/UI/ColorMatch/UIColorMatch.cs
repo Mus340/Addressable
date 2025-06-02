@@ -40,8 +40,13 @@ public class UIColorMatch : UIContentPanel
         var game = Main.Ins.MainGame.GameContentProvider.GetGameContent<ColorMatchContent>(GameType.ColorMatch);
         _prevScore = game.Score;
         scoreText.text = $"{game.Score}";
-        
-        maxScorePos.SetActive(game.MaxScore > 0);
+
+        foreach (var rankItem in _rankPosList)
+        {
+            rankItem.gameObject.SetActive(true);
+        }
+
+        maxScorePos.gameObject.SetActive(game.MaxScore > 0);
         
         SetPos();
         game.OnNext.Subscribe((_) =>
@@ -67,15 +72,24 @@ public class UIColorMatch : UIContentPanel
         var curScore = content.Score;
         var maxScore = content.MaxScore;
 
-        float max = Mathf.Max(curScore, maxScore, Main.Ins.MainData.RankData.RankList[0].MaxScore, 1f);
+        var rankList = Main.Ins.MainData.RankData.RankList;
+        float max = Mathf.Max(curScore, maxScore, rankList[0].MaxScore, 1f);
         float panelWidth = ((RectTransform)posPanel.transform).rect.width;
 
         SetXPositionSmooth(curScorePos, curScore, max, panelWidth);
-        SetXPositionSmooth(maxScorePos, maxScore, max, panelWidth);
+        SetXPositionSmooth(maxScorePos.gameObject, maxScore, max, panelWidth);
 
-        for (int i = 0; i < Main.Ins.MainData.RankData.RankList.Count; i++)
+        for (int i = 0; i < _rankPosList.Count; i++)
         {
-            SetXPositionSmooth(_rankPosList[i].gameObject, Main.Ins.MainData.RankData.RankList[i].MaxScore, max, panelWidth);
+            if (curScore >= rankList[i].MaxScore)
+            {
+                _rankPosList[i].gameObject.gameObject.SetActive(false);
+            }
+        }
+        
+        for (int i = 0; i < _rankPosList.Count; i++)
+        {
+            SetXPositionSmooth(_rankPosList[i].gameObject, rankList[i].MaxScore, max, panelWidth);
         }
     }
     

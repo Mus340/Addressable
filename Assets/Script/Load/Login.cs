@@ -56,10 +56,10 @@ public class Login : MonoBehaviour
     {
         _auth = FirebaseAuth.DefaultInstance;
 
-#if UNITY_IOS
+#if UNITY_IOS && !UNITY_EDITOR
     await AuthenticateGameCenterAsync();
-#elif UNITY_ANDROID
-    await AuthenticateGooglePlayAsync();
+#elif UNITY_ANDROID && !UNITY_EDITOR
+    await LoginGooglePlayGames();
 #endif
         await SignInAnonymouslyAsync();
     }
@@ -89,19 +89,24 @@ public class Login : MonoBehaviour
     #endif
     
     #if UNITY_ANDROID
-    private async Task AuthenticateGooglePlayAsync()
+    private async Task LoginGooglePlayGames()
     {
-        PlayGamesClientConfiguration config = new PlayGamesClientConfiguration.Builder().Build();
-        PlayGamesPlatform.InitializeInstance(config);
         PlayGamesPlatform.Activate();
-    
         var tcs = new TaskCompletionSource<bool>();
-        Social.localUser.Authenticate(success =>
+        PlayGamesPlatform.Instance.Authenticate((success) =>
         {
-            Debug.Log(success ? "Google Play Games 로그인 성공" : "Google Play Games 로그인 실패");
-            tcs.SetResult(success);
+            if (success == SignInStatus.Success)
+            {
+                Debug.Log("Login with Google Play games successful.");
+                tcs.SetResult(true);
+            }
+            else
+            {
+                Debug.Log("Login Unsuccessful");
+            }
         });
         await tcs.Task;
     }
-    #endif
+#endif
+
 }
