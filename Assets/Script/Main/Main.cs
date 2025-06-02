@@ -48,7 +48,6 @@ public class Main : MonoBehaviour
             var nickName = Instantiate(Resources.Load<NicknameSetter>($"{ResourcesPath.NickNamePath}"),nickNameParent);
             await nickName.OpenNickName();
         }
-        await AdsManager.Ins.InitializeAdmobAsync();
 
         LoadComplete = true;
         _onLoadComplete.OnNext(Unit.Default);

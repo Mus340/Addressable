@@ -31,19 +31,21 @@ public class AdsManager : MonoBehaviour
     private float _adCooldown = 180f; // 3분
     private float _lastAdTime = -999f;
     private float _appStartTime;
-    
-    public async Task InitializeAdmobAsync()
+
+    private void Start()
+    {
+        Initialize();
+    }
+
+    public void Initialize()
     {
         _appStartTime = Time.time; 
-        var tcs = new TaskCompletionSource<bool>();
         MobileAds.Initialize(initStatus =>
         {
-            Debug.Log("AdMob 초기화 완료");
-            tcs.SetResult(true);
+            Debug.Log($"ADMOB : {initStatus}");
             
             LoadInterstitialAd();
         });
-        await tcs.Task;
     }
 
     public void TryShowAdOnGameOver()
