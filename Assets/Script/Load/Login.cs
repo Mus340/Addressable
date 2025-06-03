@@ -66,15 +66,22 @@ public class Login : MonoBehaviour
 
     private async Task SignInAnonymouslyAsync()
     {
+        if (_auth.CurrentUser != null)
+        {
+            UserID = _auth.CurrentUser.UserId;
+            IsNewUser = false;
+            Debug.Log($"기존 익명 사용자로 로그인됨 : {UserID}");
+            return;
+        }
         var userCredential = await _auth.SignInAnonymouslyAsync();
         if (userCredential != null && userCredential.User != null)
         {
             UserID = userCredential.User.UserId;
-            var metadata = userCredential.User.Metadata;
-            IsNewUser = metadata.CreationTimestamp == metadata.LastSignInTimestamp;
+            IsNewUser = true;
+            Debug.Log($"새 익명 사용자로 로그인됨 : {UserID}");
         }
     }
-
+ 
 #if UNITY_IOS
     private async Task AuthenticateGameCenterAsync()
     {

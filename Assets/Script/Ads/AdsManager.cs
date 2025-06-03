@@ -31,41 +31,43 @@ public class AdsManager : MonoBehaviour
     private float _adCooldown = 180f; // 3분
     private float _lastAdTime = -999f;
     private float _appStartTime;
-
-    private void Start()
-    {
-        Initialize();
-    }
-
-    public void Initialize()
+    
+    public async Task InitializeAdmobAsync()
     {
         _appStartTime = Time.time; 
+        var tcs = new TaskCompletionSource<bool>();
         MobileAds.Initialize(initStatus =>
         {
-            Debug.Log($"ADMOB : {initStatus}");
+            Debug.Log("AdMob 초기화 완료");
+            tcs.SetResult(true);
             
             LoadInterstitialAd();
         });
+        await tcs.Task;
     }
 
     public void TryShowAdOnGameOver()
     {
         float timeSinceAppStart = Time.time - _appStartTime;
 
-        if (_interstitialAd != null &&
-            _interstitialAd.CanShowAd() &&
-            timeSinceAppStart >= _adCooldown &&
-            Time.time - _lastAdTime >= _adCooldown)
+        if (_interstitialAd == null)
         {
-            Debug.Log("게임오버 → 전면 광고 표시");
-            _interstitialAd.Show();
+            Debug.LogError("Iniailized is Null");
+            return;
         }
-        else
+        else if (_interstitialAd.CanShowAd() == false)
+        {
+            Debug.LogError("Ads Cant show");
+            return;
+        }
+        else if (timeSinceAppStart >= _adCooldown && Time.time - _lastAdTime >= _adCooldown)
         {
             Debug.Log($"StartTime : {timeSinceAppStart}");
             Debug.Log($"RemainTime : {Time.time - _lastAdTime}");
             Debug.Log("게임오버 → 광고 조건 미충족 (앱 시작 후 3분 경과해야 가능)");
+            return;
         }
+        _interstitialAd.Show();
     }
 
     

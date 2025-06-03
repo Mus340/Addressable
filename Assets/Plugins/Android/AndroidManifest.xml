@@ -1,31 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        package="com.unity3d.player">
-
-    <application>
-
-        <!-- ✅ AdMob App ID 설정 -->
-        <meta-data
-                android:name="com.google.android.gms.ads.APPLICATION_ID"
-                android:value="ca-app-pub-3940256099942544/6300978111" />
-
-        <!-- ❌ AdMob 자동 초기화 방지 (원할 경우 사용) -->
-        <provider
-                android:name="com.google.android.gms.ads.MobileAdsInitProvider"
-                android:authorities="${applicationId}.com.google.android.gms.ads.MobileAdsInitProvider"
-                android:exported="false"
-                tools:node="remove" />
-
-        <activity android:name="com.unity3d.player.UnityPlayerActivity"
-                  android:theme="@style/UnityThemeSelector">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
-        </activity>
-
-    </application>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" package="com.unity3d.player">
+  <application>
+    <!-- ✅ AdMob App ID 설정 -->
+    <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-3940256099942544/6300978111" />
+    <!-- ❌ AdMob 자동 초기화 방지 (원할 경우 사용) -->
+    <provider android:name="com.google.android.gms.ads.MobileAdsInitProvider" android:authorities="com.Mus.ChallengeRush.com.google.android.gms.ads.MobileAdsInitProvider" android:exported="false" tools:node="remove" />
+    <activity android:name="com.unity3d.player.UnityPlayerActivity" android:theme="@style/UnityThemeSelector">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+      <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
+    </activity>
+  </application>
 </manifest>
