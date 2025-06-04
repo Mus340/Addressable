@@ -9,9 +9,11 @@ public class UIRankPos : MonoBehaviour
     public Text text;
     
     private int _rank;
-
-    public void Set(int rank)
+    private bool _isDeath;
+    
+    public void Initialize(int rank)
     {
+        _isDeath = true;
         _rank = rank;
         text.text = (_rank + 1).ToString();
         Color color;
@@ -32,5 +34,10 @@ public class UIRankPos : MonoBehaviour
             ColorUtility.TryParseHtmlString("#FFFFFF", out color);
         }
         image.color = color;
+    }
+
+    public void Death()
+    {
+        
     }
 }

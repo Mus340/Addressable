@@ -29,7 +29,7 @@ public class UIColorMatch : UIContentPanel
         {
             var item = Instantiate(uIRankPosOrigin, uIRankPosOrigin.transform.parent);
             item.transform.SetAsFirstSibling();
-            item.Set(i);
+            item.Initialize(i);
             _rankPosList.Add(item);
         }
         uIRankPosOrigin.gameObject.SetActive(false);

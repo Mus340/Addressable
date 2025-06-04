@@ -7,14 +7,28 @@ using Firebase.Database;
 using Firebase.Extensions;
 using UnityEngine;
 
+
+
 public class RankData : MonoBehaviour
-{    
+{
     public class Rank : ApplyToDictionary<Rank>
     {
         public string Name;
         public int MaxScore;
     }
+    public enum Tier
+    {
+        Purple,
+        Red,
+        Pink,
+        Blue,
+        Emerald,
+        Green,
+        Yellow,
+        Brown,
+    }
 
+    public Sprite[] tierSprite;
     public List<Rank> RankList { get; private set; } = new();
     private DatabaseReference _reference;
     
@@ -28,7 +42,6 @@ public class RankData : MonoBehaviour
     {
         var snapshot = await _reference
             .OrderByChild("MaxScore")
-            .LimitToLast(200)
             .GetValueAsync();
 
         if (snapshot.Exists)
