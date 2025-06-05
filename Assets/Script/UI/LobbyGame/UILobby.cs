@@ -17,9 +17,9 @@ public class UILobby : MonoBehaviour
         enterButton.onClick.RemoveAllListeners();
         enterButton.onClick.AddListener(Enter);
 
-        goldRankerText.text = Main.Ins.MainData.RankData.RankList[0].Name;
-        silverRankerText.text = Main.Ins.MainData.RankData.RankList[1].Name;
-        bronzeRankerText.text = Main.Ins.MainData.RankData.RankList[2].Name;
+        goldRankerText.text = "변경중";
+        silverRankerText.text = "변경중";
+        bronzeRankerText.text = "변경중";
     }
 
     private void Enter()

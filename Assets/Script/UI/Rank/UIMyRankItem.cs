@@ -9,8 +9,7 @@ public class UIMyRankItem : MonoBehaviour
     public Text rankText;
     public Text nameText;
     public Text scoreText;
-    public Image medalImage;
-    public Sprite[] medalSprites;
+    public Image tierImage;
     private int _index;
 
     public void Set()
@@ -18,7 +17,7 @@ public class UIMyRankItem : MonoBehaviour
         var userName = Main.Ins.MainData.UserData.UserInfo.Name;
         nameText.text = userName;
         scoreText.text = Main.Ins.MainData.UserData.UserInfo.Score.ToString();
-        var rank = Main.Ins.MainData.RankData.GetRankNumber(userName);
-        rankText.text = rank == -1 ? "-" : rank.ToString();
+        //var rank = Main.Ins.MainData.RankData.GetRankNumber(userName);
+        //rankText.text = rank == -1 ? "-" : rank.ToString();
     }
 }

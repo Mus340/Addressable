@@ -15,6 +15,7 @@ public class UserData : MonoBehaviour
         public string Name;
         public int PlayCount;
         public int Score;
+        public Tier Tier;
         public string FirstTime;
         public string LastTime;
     }

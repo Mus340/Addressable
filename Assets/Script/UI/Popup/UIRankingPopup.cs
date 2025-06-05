@@ -12,30 +12,22 @@ public class UIRankingPopup : UIPopupPanel
 
     private void Awake()
     {
-        if (Main.Ins.LoadComplete)
-        {
-            ScrollView.totalItemCount = Main.Ins.MainData.RankData.RankList.Count;
-        }
-        else
-        {
-            Main.Ins.OnLoadComplete.Subscribe((_) =>
-            {
-                ScrollView.totalItemCount = Main.Ins.MainData.RankData.RankList.Count;
-            }).AddTo(this);
-        }
+        //if (Main.Ins.LoadComplete)
+        //{
+        //    ScrollView.totalItemCount = Main.Ins.MainData.RankData.get.Count;
+        //}
+        //else
+        //{
+        //    Main.Ins.OnLoadComplete.Subscribe((_) =>
+        //    {
+        //        ScrollView.totalItemCount = Main.Ins.MainData.RankData.RankDictionary.Count;
+        //    }).AddTo(this);
+        //}
     }
 
     public void Set()
     {
         MyRankItem.Set();
         ScrollView.refresh();
-    }
-
-    public async void Refresh()
-    {
-        await Main.Ins.MainData.RankData.LoadRanker();
-        ScrollView.totalItemCount = Main.Ins.MainData.RankData.RankList.Count;
-        Set();
-        Debug.Log("하이");
     }
 }

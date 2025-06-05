@@ -25,7 +25,7 @@ public class UIColorMatch : UIContentPanel
     protected override void Initialize()
     {
         _rankPosList = new();
-        for (int i = 0; i < Main.Ins.MainData.RankData.RankList.Count; i++)
+        for (int i = 0; i < Main.Ins.MainData.RankData.GetRankList().Count; i++)
         {
             var item = Instantiate(uIRankPosOrigin, uIRankPosOrigin.transform.parent);
             item.transform.SetAsFirstSibling();
@@ -72,7 +72,7 @@ public class UIColorMatch : UIContentPanel
         var curScore = content.Score;
         var maxScore = content.MaxScore;
 
-        var rankList = Main.Ins.MainData.RankData.RankList;
+        var rankList = Main.Ins.MainData.RankData.GetRankList();
         float max = Mathf.Max(curScore, maxScore, rankList[0].MaxScore, 1f);
         float panelWidth = ((RectTransform)posPanel.transform).rect.width;
 

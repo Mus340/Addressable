@@ -7,7 +7,17 @@ using Firebase.Database;
 using Firebase.Extensions;
 using UnityEngine;
 
-
+public enum Tier
+{
+    Brown = default,
+    Yellow,
+    Green,
+    Emerald,
+    Blue,
+    Pink,
+    Red,
+    Purple,
+}
 
 public class RankData : MonoBehaviour
 {
@@ -16,21 +26,12 @@ public class RankData : MonoBehaviour
         public string Name;
         public int MaxScore;
     }
-    public enum Tier
-    {
-        Purple,
-        Red,
-        Pink,
-        Blue,
-        Emerald,
-        Green,
-        Yellow,
-        Brown,
-    }
 
     public Sprite[] tierSprite;
-    public List<Rank> RankList { get; private set; } = new();
+    private Dictionary<Tier, List<Rank>> _rankDictionary;
     private DatabaseReference _reference;
+    
+    private List<int> _rankUserRange = new List<int>();
     
     public async Task Initialize(FirebaseDatabase reference)
     {
@@ -40,33 +41,72 @@ public class RankData : MonoBehaviour
     
     public async Task LoadRanker()
     {
-        var snapshot = await _reference
-            .OrderByChild("MaxScore")
-            .GetValueAsync();
+        var snapshot = await _reference.GetValueAsync();
 
         if (snapshot.Exists)
         {
-            RankList.Clear();
+            _rankDictionary = new Dictionary<Tier, List<Rank>>();
+            var allRanks = new List<Rank>();
+
             foreach (var child in snapshot.Children)
             {
                 var data = JsonUtility.FromJson<Rank>(child.GetRawJsonValue());
-                RankList.Add(data);
+                allRanks.Add(data);
             }
-            RankList = RankList
-                .OrderByDescending(data => data.MaxScore)
-                .ToList();
+            SetTierRange(allRanks.Count);
+            allRanks = allRanks.OrderByDescending(r => r.MaxScore).ToList();
+
+            for (int i = 0; i < allRanks.Count; i++)
+            {
+                var tierIndex = _rankUserRange.FindIndex(range => i < range);
+                if (tierIndex == -1)
+                {
+                    tierIndex = _rankUserRange.Count - 1;
+                }
+                var tier = (Tier)tierIndex;
+
+                if (!_rankDictionary.ContainsKey(tier))
+                {
+                    _rankDictionary[tier] = new List<Rank>();
+                }
+
+                _rankDictionary[tier].Add(allRanks[i]);
+            }
         }
     }
     
-    public int GetRankNumber(string userName) 
+    private void SetTierRange(int total)
     {
-        var rank = RankList
-            .OrderByDescending(x => x.MaxScore)
-            .TakeWhile(x => x.Name != userName)
-            .Count();
+        int tierCount = Enum.GetValues(typeof(Tier)).Length;
 
-        return RankList.Any(x => x.Name == userName) ? rank : -1;
+        _rankUserRange.Clear();
+        int groupSize = Mathf.CeilToInt((float)total / tierCount);
+        int sum = 0;
+
+        for (int i = 0; i < tierCount; i++)
+        {
+            sum += groupSize;
+            if (sum > total)
+            {
+                sum = total;
+            }
+            _rankUserRange.Add(sum);
+        }
     }
+    
+    public Tier GetTier()
+    {
+        return Tier.Blue;
+    }
+    public List<Rank> GetRankList()
+    {
+        return _rankDictionary[Tier.Blue];
+    }
+    public int GetRankNumber()
+    {
+        return 1;
+    }
+    
     
     public void SaveInfo(string userName)
     {
