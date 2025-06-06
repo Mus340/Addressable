@@ -37,60 +37,60 @@ public class UIColorMatch : UIContentPanel
 
     protected override void Enter()
     {
-        var game = Main.Ins.MainGame.GameContentProvider.GetGameContent<ColorMatchContent>(GameType.ColorMatch);
-        _prevScore = game.Score;
-        scoreText.text = $"{game.Score}";
-
-        foreach (var rankItem in _rankPosList)
-        {
-            rankItem.gameObject.SetActive(true);
-        }
-
-        maxScorePos.gameObject.SetActive(game.MaxScore > 0);
-        
-        SetPos();
-        game.OnNext.Subscribe((_) =>
-        {
-            SetPos();
-            ShowScoreEffect(game.Score,_prevScore);
-            _prevScore = game.Score;
-
-        }).AddTo(Disposable);
-        
-        timerText.text = $"{game.TIMER_TIME}";
-        game.TimeLeft
-            .Subscribe(value =>
-            {
-                timerText.text = $"{(int)value + 1}";
-            })
-            .AddTo(this);
+        //var game = Main.Ins.MainGame.GameContentProvider.GetGameContent<ColorMatchContent>(GameType.ColorMatch);
+        //_prevScore = game.Score;
+        //scoreText.text = $"{game.Score}";
+//
+        //foreach (var rankItem in _rankPosList)
+        //{
+        //    rankItem.gameObject.SetActive(true);
+        //}
+//
+        //maxScorePos.gameObject.SetActive(game.MaxScore > 0);
+        //
+        //SetPos();
+        //game.OnNext.Subscribe((_) =>
+        //{
+        //    SetPos();
+        //    ShowScoreEffect(game.Score,_prevScore);
+        //    _prevScore = game.Score;
+//
+        //}).AddTo(Disposable);
+        //
+        //timerText.text = $"{game.TIMER_TIME}";
+        //game.TimeLeft
+        //    .Subscribe(value =>
+        //    {
+        //        timerText.text = $"{(int)value + 1}";
+        //    })
+        //    .AddTo(this);
     }
     
     private void SetPos()
     {
-        var content = Main.Ins.MainGame.GameContentProvider.GetGameContent<ColorMatchContent>(GameType.ColorMatch);
-        var curScore = content.Score;
-        var maxScore = content.MaxScore;
-
-        var rankList = Main.Ins.MainData.RankData.GetRankList();
-        float max = Mathf.Max(curScore, maxScore, rankList[0].MaxScore, 1f);
-        float panelWidth = ((RectTransform)posPanel.transform).rect.width;
-
-        SetXPositionSmooth(curScorePos, curScore, max, panelWidth);
-        SetXPositionSmooth(maxScorePos.gameObject, maxScore, max, panelWidth);
-
-        for (int i = 0; i < _rankPosList.Count; i++)
-        {
-            if (curScore >= rankList[i].MaxScore)
-            {
-                _rankPosList[i].gameObject.gameObject.SetActive(false);
-            }
-        }
-        
-        for (int i = 0; i < _rankPosList.Count; i++)
-        {
-            SetXPositionSmooth(_rankPosList[i].gameObject, rankList[i].MaxScore, max, panelWidth);
-        }
+        //var content = Main.Ins.MainGame.GameContentProvider.GetGameContent<ColorMatchContent>(GameType.ColorMatch);
+        //var curScore = content.Score;
+        //var maxScore = content.MaxScore;
+//
+        //var rankList = Main.Ins.MainData.RankData.GetRankList();
+        //float max = Mathf.Max(curScore, maxScore, rankList[0].MaxScore, 1f);
+        //float panelWidth = ((RectTransform)posPanel.transform).rect.width;
+//
+        //SetXPositionSmooth(curScorePos, curScore, max, panelWidth);
+        //SetXPositionSmooth(maxScorePos.gameObject, maxScore, max, panelWidth);
+//
+        //for (int i = 0; i < _rankPosList.Count; i++)
+        //{
+        //    if (curScore >= rankList[i].MaxScore)
+        //    {
+        //        _rankPosList[i].gameObject.gameObject.SetActive(false);
+        //    }
+        //}
+        //
+        //for (int i = 0; i < _rankPosList.Count; i++)
+        //{
+        //    SetXPositionSmooth(_rankPosList[i].gameObject, rankList[i].MaxScore, max, panelWidth);
+        //}
     }
     
     private void SetXPositionSmooth(GameObject obj, float score, float maxScore,float panelWidth)

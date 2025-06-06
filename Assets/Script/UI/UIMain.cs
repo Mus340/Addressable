@@ -22,11 +22,14 @@ public class UIMain : MonoBehaviour
 
     public UIPopup UiPopup {get; private set;}
     public UILobby UiLobby {get; private set;}
+    public UIColorMatch UIColorMatch { get; private set; } 
 
     private void Awake()
     {
         UiPopup = FindObjectOfType<UIPopup>();
         UiLobby = FindObjectOfType<UILobby>();
+        UIColorMatch = FindObjectOfType<UIColorMatch>();
+        UIColorMatch.gameObject.SetActive(false);
         Initialize();
     }
 

@@ -14,6 +14,7 @@ public class ColorMatchContent : GameContent
     public ReactiveProperty<float> TimeLeft {get; private set;}
     
     public List<ColorMatchItem> colorMatchItemList;
+
     private int _answerIndex;
     private bool _isEndGame;
     private int _level;
@@ -35,7 +36,6 @@ public class ColorMatchContent : GameContent
     {
         TimeLeft = new ReactiveProperty<float>();
         _timerDisposable = new CompositeDisposable();
-
         _isEndGame = false;
         _level = 1;
         Score = 0;
@@ -156,7 +156,7 @@ public class ColorMatchContent : GameContent
     }
 
     private Color GetColor(int level)
-    {
+    { 
         var color = Color.white;
         switch ((level-1) % 7)
         {

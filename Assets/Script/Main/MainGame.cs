@@ -6,68 +6,62 @@ using UnityEngine;
 
 public class MainGame : MonoBehaviour
 {
-    public GameContentProvider GameContentProvider { get; private set; }
-
-    public IObservable<GameType> OnBegin => _onBegin;
-    private ISubject<GameType> _onBegin = new Subject<GameType>();
+    public IObservable<Unit> OnBegin => _onBegin;
+    private ISubject<Unit> _onBegin = new Subject<Unit>();
     
     public IObservable<Unit> OnEnd => _onEnd;
     private ISubject<Unit> _onEnd = new Subject<Unit>();
-    
-    public GameType? CurGameType { get; private set; }
 
+    public GameContent gameContent;
+    
     private void Awake()
-    {
-        GameContentProvider = FindObjectOfType<GameContentProvider>();
+    {           
         if (Main.Ins.LoadComplete)
         {
-            GameContentProvider.Initialize();
+            LoadGame();
         }
         else
         {
             Main.Ins.OnLoadComplete.Subscribe((_) =>
             {
-                GameContentProvider.Initialize();
+                LoadGame();
             }).AddTo(this);
         }
     }
-    
-    public void EnterGame(GameType type)
+
+    private void LoadGame()
     {
-        if (CurGameType.HasValue)
-        {
-            return;
-        }
-        CurGameType = type;
-        var game = GameContentProvider.GetGameContent(type);
-        game.Begin();
-        _onBegin.OnNext(CurGameType.Value);
-        game.gameObject.SetActive(true);
+        var prefab = Resources.Load<GameContent>($"{ResourcesPath.GamePath}{"ColorMatch3D"}");
+        gameContent = Instantiate(prefab);
+        gameContent.Initialized();
+        gameContent.gameObject.SetActive(false);
+    }
+    
+    public void EnterGame()
+    {
+        UIMain.Ins.UiLobby.gameObject.SetActive(false);
+        UIMain.Ins.UIColorMatch.gameObject.SetActive(true);
+        gameContent.Begin();
+        _onBegin.OnNext(Unit.Default);
+        gameContent.gameObject.SetActive(true);
     }
 
     public void RetryGame()
     {
-        if (CurGameType.HasValue)
-        {
-            var game = GameContentProvider.GetGameContent(CurGameType.Value);
-            game.End();
-            _onEnd.OnNext(Unit.Default);
-            game.Begin();
-            _onBegin.OnNext(CurGameType.Value);
-            AdsManager.Ins.TryShowAdOnGameOver();
-        }
+        gameContent.End();
+        _onEnd.OnNext(Unit.Default);
+        gameContent.Begin();
+        _onBegin.OnNext(Unit.Default);
+        //AdsManager.Ins.TryShowAdOnGameOver();
     }
-    
+
     public void ReturnToLobby()
     {
-        if (CurGameType.HasValue)
-        {
-            var game = GameContentProvider.GetGameContent(CurGameType.Value);
-            game.End();
-            _onEnd.OnNext(Unit.Default);
-            game.gameObject.SetActive(false);
-            CurGameType = null;
-            AdsManager.Ins.TryShowAdOnGameOver();
-        }
+        UIMain.Ins.UiLobby.gameObject.SetActive(true);
+        UIMain.Ins.UIColorMatch.gameObject.SetActive(false);
+        gameContent.End();
+        _onEnd.OnNext(Unit.Default);
+        gameContent.gameObject.SetActive(false);
+        //AdsManager.Ins.TryShowAdOnGameOver();
     }
 }

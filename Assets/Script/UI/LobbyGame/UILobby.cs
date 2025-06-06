@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,7 +14,7 @@ public class UILobby : MonoBehaviour
     public Text bronzeRankerText;
     
     public void Initialize()
-    {
+    {        
         enterButton.onClick.RemoveAllListeners();
         enterButton.onClick.AddListener(Enter);
 
@@ -24,6 +25,6 @@ public class UILobby : MonoBehaviour
 
     private void Enter()
     {
-        Main.Ins.MainGame.EnterGame(GameType.ColorMatch);
+        Main.Ins.MainGame.EnterGame();
     }
 }
