@@ -73,7 +73,7 @@ public class ColorMatch3DContent : GameContent
         StartStage(_level);
         StartTimer(TIMER_TIME);
         
-        player.Move(new Vector3(_curXPos, _level+player.transform.localScale.y+1, _level));
+        player.Move(new Vector3(_curXPos, _level+1, _level));
     }
     
     public override void End()
@@ -124,15 +124,18 @@ public class ColorMatch3DContent : GameContent
 
     private void Move(PlayerMove move)
     {
-        if (move == PlayerMove.Left && (_curXPos-1) >= 0)
+        if (!_isEndGame)
         {
-            _curXPos--;
+            if (move == PlayerMove.Left && (_curXPos-1) >= 0)
+            {
+                _curXPos--;
+            }
+            else if (move == PlayerMove.Right && (_curXPos + 1) < _levelData.GetValue(_level).block_count)
+            {
+                _curXPos++;
+            }
+            player.Move(new Vector3(_curXPos, _level+1, _level));
         }
-        else if (move == PlayerMove.Right && (_curXPos + 1) < _levelData.GetValue(_level).block_count)
-        {
-            _curXPos++;
-        }
-        player.Move(new Vector3(_curXPos, _level+player.transform.localScale.y, _level));
     }
     private void Select(int level, int index)
     {
@@ -154,7 +157,7 @@ public class ColorMatch3DContent : GameContent
     {
         _level++;
         Score += _level + (int)TimeLeft.Value;
-        player.Move(new Vector3(_curXPos, _level+player.transform.localScale.y, _level));
+        player.Move(new Vector3(_curXPos, _level+1, _level));
         MoveNextStage();
     }
     
