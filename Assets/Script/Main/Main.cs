@@ -23,7 +23,7 @@ public class Main : MonoBehaviour
     public MainGame MainGame { get; private set; }
     public MainTime MainTime { get; private set; }
     public MainData MainData { get; private set; }
-    
+    public MainCamera MainCamera { get; private set; } 
     public bool LoadComplete { get; private set; }
     public IObservable<Unit> OnLoadComplete => _onLoadComplete;
     private Subject<Unit> _onLoadComplete = new Subject<Unit>();
@@ -34,6 +34,7 @@ public class Main : MonoBehaviour
         MainGame = GetComponent<MainGame>();
         MainTime = GetComponent<MainTime>();
         MainData = GetComponent<MainData>();
+        MainCamera = GetComponent<MainCamera>();
         
         Initialize();
     }

@@ -44,7 +44,7 @@ public class ColorMatch3DContent : GameContent
     public override void Begin()
     {
         player = Instantiate(Resources.Load<Player>(ResourcesPath.PlayerPath));
-        
+        Main.Ins.MainCamera.Follow(player.transform);
         _useCubeQueue = new Queue<ColorCubeBar>();
         TimeLeft = new ReactiveProperty<float>();
         _timerDisposable = new CompositeDisposable();
