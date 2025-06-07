@@ -31,13 +31,6 @@ public class MainCamera : MonoBehaviour
             transposer.m_YDamping = followDamping;
             transposer.m_ZDamping = followDamping;
         }
-        var composer = cineVirtual.GetCinemachineComponent<CinemachineComposer>();
-        if (composer != null)
-        {
-            composer.m_TrackedObjectOffset = Vector3.zero;
-            composer.m_HorizontalDamping = 0f;
-            composer.m_VerticalDamping = 0f;
-        }
     }
 
 }

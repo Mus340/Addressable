@@ -34,6 +34,7 @@ public class ColorMatch3DContent : GameContent
     
     public readonly int TIMER_TIME = 500;
     private const int CUBE_RANGE = 30;
+    
     public override void Initialized()
     {
         _useCubeQueue = new();
@@ -73,7 +74,7 @@ public class ColorMatch3DContent : GameContent
         StartStage(_level);
         StartTimer(TIMER_TIME);
         
-        player.Move(new Vector3(_curXPos, _level+1, _level));
+        player.Initialized(new Vector3(_curXPos, _level, _level));
     }
     
     public override void End()
@@ -92,6 +93,7 @@ public class ColorMatch3DContent : GameContent
             bar.ResetPool();
             _cubeBarPool.ReturnToPool(bar);
         }
+        _useCubeQueue.Clear();
         if (player != null)
         {
             Destroy(player.gameObject);
@@ -122,26 +124,25 @@ public class ColorMatch3DContent : GameContent
         _onNext.OnNext(_level);
     }
 
-    private void Move(PlayerMove move)
+    private void Move(PlayerState state)
     {
         if (!_isEndGame)
         {
-            if (move == PlayerMove.Left && (_curXPos-1) >= 0)
+            if (state == PlayerState.Left && (_curXPos-1) >= 0)
             {
                 _curXPos--;
             }
-            else if (move == PlayerMove.Right && (_curXPos + 1) < _levelData.GetValue(_level).block_count)
+            else if (state == PlayerState.Right && (_curXPos + 1) < _levelData.GetValue(_level).block_count)
             {
                 _curXPos++;
             }
-            player.Move(new Vector3(_curXPos, _level+1, _level));
+            player.Move(state, new Vector3(_curXPos, _level, _level));
         }
     }
     private void Select(int level, int index)
     {
         if (!_isEndGame)
         {
-            Debug.Log($"{level}.{index}");
             if (index == _answerList[level+1])
             {
                 Success();
@@ -157,7 +158,7 @@ public class ColorMatch3DContent : GameContent
     {
         _level++;
         Score += _level + (int)TimeLeft.Value;
-        player.Move(new Vector3(_curXPos, _level+1, _level));
+        player.Move(PlayerState.Forward,new Vector3(_curXPos, _level, _level));
         MoveNextStage();
     }
     
@@ -208,11 +209,15 @@ public class ColorMatch3DContent : GameContent
     {
         if (Input.GetKeyDown(KeyCode.A))
         {
-            Move(PlayerMove.Left);
+            Move(PlayerState.Left);
         }
         else if (Input.GetKeyDown(KeyCode.D))
         {
-            Move(PlayerMove.Right);
+            Move(PlayerState.Right);
+        }
+        else if (Input.GetKeyDown(KeyCode.S))
+        {
+            Move(PlayerState.Back);
         }
         else if (Input.GetKeyDown(KeyCode.W))
         {

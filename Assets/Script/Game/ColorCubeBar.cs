@@ -16,6 +16,10 @@ public class ColorCubeBar : MonoBehaviour
     
     public void SetData(LevelData data, int answerIndex)
     {
+        if (_useCubes.Count > 0)
+        {
+            ResetPool();
+        }
         var color = ColorConfig.GetColor(data.id);
         var fadeFactor = Mathf.Lerp(1f, 0.05f, Mathf.Log(data.id, 50));
         var lerpColor = Color.Lerp(color, Color.white, fadeFactor);
@@ -37,5 +41,6 @@ public class ColorCubeBar : MonoBehaviour
         {
             _cubes.ReturnToPool(useCube);
         }
+        _useCubes.Clear();
     }
 }
