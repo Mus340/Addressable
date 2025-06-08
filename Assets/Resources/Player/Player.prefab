@@ -196,6 +196,7 @@ GameObject:
   - component: {fileID: 6836556466655795446}
   - component: {fileID: 913918095447544007}
   - component: {fileID: 5508880022499812564}
+  - component: {fileID: 4616069571442794472}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -232,6 +233,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a125293ae33d0c449f38610243dd7ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerController: {fileID: 4616069571442794472}
+  animator: {fileID: 5508880022499812564}
   _jumpHeight: 0.2
   _moveDuration: 0.2
   _lerp: 1
@@ -256,6 +259,19 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &4616069571442794472
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6173172085731050060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a001fd0a9c8fc7742963ccce18d18434, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minSwipeDistance: 50
 --- !u!1 &6492255836270218599
 GameObject:
   m_ObjectHideFlags: 0

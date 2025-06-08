@@ -31,6 +31,7 @@ public class ColorMatch3DContent : GameContent
 
     private bool _isEndGame;
     private int _level;
+    private int _curXPos;
     
     public readonly int TIMER_TIME = 500;
     private const int CUBE_RANGE = 30;
@@ -44,20 +45,15 @@ public class ColorMatch3DContent : GameContent
     
     public override void Begin()
     {
-        player = Instantiate(Resources.Load<Player>(ResourcesPath.PlayerPath));
-        Main.Ins.MainCamera.Follow(player.transform);
         _useCubeQueue = new Queue<ColorCubeBar>();
         TimeLeft = new ReactiveProperty<float>();
         _timerDisposable = new CompositeDisposable();
         _disposable = new CompositeDisposable();
-        
         _isEndGame = false;
         _level = 0;
         Score = 0;
         MaxScore = Main.Ins.MainData.UserData.UserInfo.Score;
-
         _curXPos = 0;
-        
         _answerList = new();
         for (int i = 0; i < _levelData.GetLength(); i++)
         {
@@ -66,15 +62,19 @@ public class ColorMatch3DContent : GameContent
         for (int i = 0; i < CUBE_RANGE; i++)
         {
             var bar = _cubeBarPool.Get();
-            bar.Initialize();
             bar.SetData(_levelData.GetValue(i), _answerList[i]);
             _useCubeQueue.Enqueue(bar);
         }
-        
         StartStage(_level);
         StartTimer(TIMER_TIME);
         
+        player = Instantiate(Resources.Load<Player>(ResourcesPath.PlayerPath));
+        ConnectPlayerController();
+        Main.Ins.MainCamera.Follow(player.transform);
         player.Initialized(new Vector3(_curXPos, _level, _level));
+        
+        var curPlayCount = Main.Ins.MainData.UserData.UserInfo.PlayCount;
+        Main.Ins.MainData.UserData.SavePlayCount(++curPlayCount);
     }
     
     public override void End()
@@ -85,8 +85,6 @@ public class ColorMatch3DContent : GameContent
             Main.Ins.MainData.UserData.SaveScore(MaxScore);
             Main.Ins.MainData.RankData.SaveMaxScore(MaxScore);
         }
-        var curPlayCount = Main.Ins.MainData.UserData.UserInfo.PlayCount;
-        Main.Ins.MainData.UserData.SavePlayCount(++curPlayCount);
         StopTimer();
         foreach (var bar in _useCubeQueue)
         {
@@ -113,7 +111,6 @@ public class ColorMatch3DContent : GameContent
             _cubeBarPool.ReturnToPool(old);
         }
         var bar = _cubeBarPool.Get();
-        bar.Initialize();
         bar.SetData(_levelData.GetValue(level+CUBE_RANGE), _answerList[level+CUBE_RANGE]);
         _useCubeQueue.Enqueue(bar);
     }
@@ -124,21 +121,22 @@ public class ColorMatch3DContent : GameContent
         _onNext.OnNext(_level);
     }
 
-    private void Move(PlayerState state)
+    private void Move(PlayerMove move)
     {
         if (!_isEndGame)
         {
-            if (state == PlayerState.Left && (_curXPos-1) >= 0)
+            if (move == PlayerMove.Left && (_curXPos-1) >= 0)
             {
                 _curXPos--;
             }
-            else if (state == PlayerState.Right && (_curXPos + 1) < _levelData.GetValue(_level).block_count)
+            else if (move == PlayerMove.Right && (_curXPos + 1) < _levelData.GetValue(_level).block_count)
             {
                 _curXPos++;
             }
-            player.Move(state, new Vector3(_curXPos, _level, _level));
+            player.Move(move, new Vector3(_curXPos, _level, _level));
         }
     }
+    
     private void Select(int level, int index)
     {
         if (!_isEndGame)
@@ -158,7 +156,7 @@ public class ColorMatch3DContent : GameContent
     {
         _level++;
         Score += _level + (int)TimeLeft.Value;
-        player.Move(PlayerState.Forward,new Vector3(_curXPos, _level, _level));
+        player.Move(PlayerMove.Forward,new Vector3(_curXPos, _level, _level));
         MoveNextStage();
     }
     
@@ -201,28 +199,27 @@ public class ColorMatch3DContent : GameContent
         _timerDisposable?.Dispose();
         _timerDisposable = null;
     }
-
-
-    #region TodoMove
-    private int _curXPos;
-    private void Update()
+    
+    private void ConnectPlayerController()
     {
-        if (Input.GetKeyDown(KeyCode.A))
+        player.playerController.OnMove.Subscribe((move) =>
         {
-            Move(PlayerState.Left);
-        }
-        else if (Input.GetKeyDown(KeyCode.D))
-        {
-            Move(PlayerState.Right);
-        }
-        else if (Input.GetKeyDown(KeyCode.S))
-        {
-            Move(PlayerState.Back);
-        }
-        else if (Input.GetKeyDown(KeyCode.W))
-        {
-            Select(_level, _curXPos);
-        }
+            if (move == PlayerMove.Left)
+            {
+                Move(PlayerMove.Left);
+            }
+            else if (move == PlayerMove.Right)
+            {
+                Move(PlayerMove.Right);
+            }
+            else if (move == PlayerMove.Back)
+            {
+                Move(PlayerMove.Back);
+            }
+            else if (move == PlayerMove.Forward)
+            {
+                Select(_level, _curXPos);
+            }
+        }).AddTo(_disposable);
     }
-    #endregion
 }

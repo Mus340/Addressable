@@ -5,7 +5,7 @@ using DG.Tweening;
 using UniRx;
 using UnityEngine;
 
-public enum PlayerState
+public enum PlayerMove
 {
     Left,
     Right,
@@ -15,34 +15,30 @@ public enum PlayerState
 
 public class Player : MonoBehaviour
 {
-    private Animator _animator;
-
-    private void Awake()
-    {
-        _animator = GetComponent<Animator>();
-    }
-
+    public PlayerController playerController;
+    public Animator animator;
+    
     public void Initialized(Vector3 pos)
     {
         transform.position = new Vector3(pos.x, pos.y+(transform.localScale.y/2.0f), pos.z);
     }
-    public void Move(PlayerState state, Vector3 pos)
+    public void Move(PlayerMove move, Vector3 pos)
     {
         var movePos = new Vector3(pos.x, pos.y+(transform.localScale.y/2.0f), pos.z);
         
-        if (state == PlayerState.Left)
+        if (move == PlayerMove.Left)
         {
             MoveLeft(movePos);
         }
-        else if (state == PlayerState.Right)
+        else if (move == PlayerMove.Right)
         {
             MoveRight(movePos);
         }
-        else if (state == PlayerState.Back)
+        else if (move == PlayerMove.Back)
         {
             MoveBack();
         }
-        else if (state == PlayerState.Forward)
+        else if (move == PlayerMove.Forward)
         {
             MoveForward(movePos);
         }
@@ -55,7 +51,7 @@ public class Player : MonoBehaviour
     public void MoveLeft(Vector3 movePos)
     {
         transform.rotation = Quaternion.LookRotation(Vector3.left);
-        _animator.SetTrigger("Attack");
+        animator.SetTrigger("Attack");
 
         Vector3 startPos = transform.position;
         Vector3 midPos = Vector3.Lerp(startPos, movePos, _lerp);
@@ -69,7 +65,7 @@ public class Player : MonoBehaviour
     public void MoveRight(Vector3 movePos)
     {
         transform.rotation = Quaternion.LookRotation(Vector3.right);
-        _animator.SetTrigger("Attack");
+        animator.SetTrigger("Attack");
 
         Vector3 startPos = transform.position;
         Vector3 midPos = Vector3.Lerp(startPos, movePos, _lerp);
@@ -88,7 +84,7 @@ public class Player : MonoBehaviour
     public void MoveForward(Vector3 movePos)
     {
         transform.rotation = Quaternion.LookRotation(Vector3.forward);
-        _animator.SetTrigger("Attack");
+        animator.SetTrigger("Attack");
         Vector3 startPos = transform.position;
         Vector3 midPos = Vector3.Lerp(startPos, movePos, _lerp);
         midPos.y += _jumpHeight;
