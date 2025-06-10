@@ -9,6 +9,9 @@ using UnityEngine.Serialization;
 
 public class Player : MonoBehaviour
 {
+    public IObservable<Vector3Int> OnMove => _onMove;
+    private ISubject<Vector3Int> _onMove = new Subject<Vector3Int>();
+    
     public PlayerController playerController;
     public Animator animator;
     public float jumpHeight;
@@ -17,6 +20,8 @@ public class Player : MonoBehaviour
 
     private ColorMatchContent _content;
     private Vector3Int _pos;
+
+    public Vector3Int GetPos() => _pos;
     
     public void Initialized(Vector3 pos)
     {
@@ -46,7 +51,9 @@ public class Player : MonoBehaviour
         _content.OnNext.Subscribe((level) =>
         {
             _pos.y = level;
-            Move(PlayerMove.Forward,new Vector3(_pos.x, _pos.y, _pos.y));
+            _pos.z = level;
+            Move(PlayerMove.Forward,new Vector3(_pos.x, _pos.y, _pos.z));
+            _onMove.OnNext(new Vector3Int(_pos.x, _pos.y, _pos.z));
         }).AddTo(this);
     }
     
@@ -62,7 +69,8 @@ public class Player : MonoBehaviour
             {
                 _pos.x++;
             }
-            Move(move, new Vector3(_pos.x, _pos.y, _pos.y));
+            Move(move, new Vector3(_pos.x, _pos.y, _pos.z));
+            _onMove.OnNext(new Vector3Int(_pos.x, _pos.y, _pos.z));
         }
     }
     

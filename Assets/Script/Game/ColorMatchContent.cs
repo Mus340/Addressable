@@ -3,12 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 public class ColorMatchContent : GameContent
 {
-    private Player _player;
-    private Enemy _enemy;
+    public Player Player { get; private set; }
+    public Enemy Enemy  { get; private set; }
     
     public IObservable<int> OnNext => _onNext;
     private ISubject<int> _onNext = new Subject<int>();
@@ -18,15 +19,15 @@ public class ColorMatchContent : GameContent
     private ObjectPool<ColorCubeBar> _cubeBarPool;
     private Queue<ColorCubeBar> _useCubeQueue;
     
-    private List<int> _answerList;
-    public DataTable<LevelData> LevelData { get; private set; }= new();
+    public List<int> AnswerList {get; private set;}
+    public DataTable<LevelData> LevelData { get; private set; } = new();
     
     public int MaxScore {get; private set;}
     public int Score {get; private set;}
 
     public bool IsEndGame { get; private set; }
     
-    public int _level;
+    public int Level {get; private set;}
     private int _curXPos;
     
     private const int CUBE_RANGE = 30;
@@ -42,27 +43,27 @@ public class ColorMatchContent : GameContent
     {
         _useCubeQueue = new Queue<ColorCubeBar>();
         
-        _answerList = new();
+        AnswerList = new();
         IsEndGame = false;
-        _level = 0;
+        Level = 0;
         Score = 0;
         MaxScore = Main.Ins.MainData.UserData.UserInfo.Score;
         _curXPos = 0;
         
         for (int i = 0; i < LevelData.GetLength(); i++)
         {
-            _answerList.Add(Random.Range(0, LevelData.GetValue(i).cube_count));
+            AnswerList.Add(Random.Range(0, LevelData.GetValue(i).cube_count));
         }
         for (int i = 0; i < CUBE_RANGE; i++)
         {
             var bar = _cubeBarPool.Get();
-            bar.SetData(LevelData.GetValue(i), _answerList[i]);
+            bar.SetData(LevelData.GetValue(i), AnswerList[i]);
             _useCubeQueue.Enqueue(bar);
         }
         
-        _player = Instantiate(Resources.Load<Player>(ResourcesPath.PlayerPath));
-        _player.Initialized(new Vector3(_curXPos, _level, _level));
-        Main.Ins.MainCamera.Follow(_player.transform);
+        Player = Instantiate(Resources.Load<Player>(ResourcesPath.PlayerPath));
+        Player.Initialized(new Vector3(_curXPos, Level, Level));
+        Main.Ins.MainCamera.Follow(Player.transform);
         
         var curPlayCount = Main.Ins.MainData.UserData.UserInfo.PlayCount;
         Main.Ins.MainData.UserData.SavePlayCount(++curPlayCount);
@@ -71,8 +72,8 @@ public class ColorMatchContent : GameContent
         {
             if (level == 1)
             {
-                _enemy = Instantiate(Resources.Load<Enemy>(ResourcesPath.EnemyPath));
-                _enemy.Initialize();
+                Enemy = Instantiate(Resources.Load<Enemy>(ResourcesPath.EnemyPath));
+                Enemy.Initialize();
             }
         });
     }
@@ -91,13 +92,13 @@ public class ColorMatchContent : GameContent
             _cubeBarPool.ReturnToPool(bar);
         }
         _useCubeQueue.Clear();
-        if (_player != null)
+        if (Player != null)
         {
-            Destroy(_player.gameObject);
+            Destroy(Player.gameObject);
         }
-        if (_enemy != null)
+        if (Enemy != null)
         {
-            Destroy(_enemy.gameObject);
+            Destroy(Enemy.gameObject);
         }
     }
 
@@ -110,9 +111,9 @@ public class ColorMatchContent : GameContent
             _cubeBarPool.ReturnToPool(old);
         }
         var bar = _cubeBarPool.Get();
-        bar.SetData(LevelData.GetValue(_level-1+CUBE_RANGE), _answerList[_level-1+CUBE_RANGE]);
+        bar.SetData(LevelData.GetValue(Level-1+CUBE_RANGE), AnswerList[Level-1+CUBE_RANGE]);
         _useCubeQueue.Enqueue(bar);
-        _onNext.OnNext(_level);
+        _onNext.OnNext(Level);
     }
     
     
@@ -120,24 +121,28 @@ public class ColorMatchContent : GameContent
     {
         if (!IsEndGame)
         {
-            if (index == _answerList[_level+1])
+            if (index == AnswerList[Level+1])
             {
                 Success();
             }
             else
             {
-                StartCoroutine(Fail());
+                Fail();
             }
         }
     }
     
     private void Success()
     {
-        _level++;
+        Level++;
         MoveNext();
     }
-    
-    private IEnumerator Fail()
+
+    public void Fail()
+    {
+        StartCoroutine(FailCoroutine());
+    }
+    private IEnumerator FailCoroutine()
     {
         IsEndGame = true;
         yield return new WaitForSeconds(2f);
