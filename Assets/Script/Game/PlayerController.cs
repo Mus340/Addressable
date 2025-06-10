@@ -4,29 +4,35 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 
+public enum PlayerMove
+{
+    Left,
+    Right,
+    Back,
+    Forward,
+}
 public class PlayerController : MonoBehaviour
 {
-    private Vector2 startPos;
-    private bool isSwiping = false;
-    public float minSwipeDistance = 50f; // 최소 스와이프 판정 거리 (픽셀)
+    private Vector2 _startPos;
+    private bool _isSwiping = false;
+    private float _minSwipeDistance = 50f;
 
     public IObservable<PlayerMove> OnMove => _onMove;
     private ISubject<PlayerMove> _onMove = new Subject<PlayerMove>();
     
-    void Update()
+    private void Update()
     {
 #if UNITY_EDITOR || UNITY_STANDALONE
-        // 마우스 (에디터 테스트용)
         if (Input.GetMouseButtonDown(0))
         {
-            isSwiping = true;
-            startPos = Input.mousePosition;
+            _isSwiping = true;
+            _startPos = Input.mousePosition;
         }
-        else if (Input.GetMouseButtonUp(0) && isSwiping)
+        else if (Input.GetMouseButtonUp(0) && _isSwiping)
         {
             Vector2 endPos = Input.mousePosition;
-            DetectSwipe(startPos, endPos);
-            isSwiping = false;
+            DetectSwipe(_startPos, endPos);
+            _isSwiping = false;
         }
 #else
         // 터치 (모바일)
@@ -35,24 +41,24 @@ public class PlayerController : MonoBehaviour
             Touch touch = Input.GetTouch(0);
             if (touch.phase == TouchPhase.Began)
             {
-                isSwiping = true;
-                startPos = touch.position;
+                _isSwiping = true;
+                _startPos = touch.position;
             }
-            else if (touch.phase == TouchPhase.Ended && isSwiping)
+            else if (touch.phase == TouchPhase.Ended && _isSwiping)
             {
                 Vector2 endPos = touch.position;
-                DetectSwipe(startPos, endPos);
-                isSwiping = false;
+                DetectSwipe(_startPos, endPos);
+                _isSwiping = false;
             }
         }
 #endif
     }
 
-    void DetectSwipe(Vector2 start, Vector2 end)
+    private void DetectSwipe(Vector2 start, Vector2 end)
     {
         Vector2 delta = end - start;
 
-        if (delta.magnitude < minSwipeDistance)
+        if (delta.magnitude < _minSwipeDistance)
         {
             return;
         }
@@ -62,12 +68,10 @@ public class PlayerController : MonoBehaviour
             if (delta.x > 0)
             {
                 _onMove.OnNext(PlayerMove.Right);
-                Debug.Log("Swipe Right");
             }
             else
             {
                 _onMove.OnNext(PlayerMove.Left);
-                Debug.Log("Swipe Left");
             }
         }
         else
@@ -75,12 +79,10 @@ public class PlayerController : MonoBehaviour
             if (delta.y > 0)
             {
                 _onMove.OnNext(PlayerMove.Forward);
-                Debug.Log("Swipe Up");
             }
             else
             {
                 _onMove.OnNext(PlayerMove.Back);
-                Debug.Log("Swipe Down");
             }
         }
     }

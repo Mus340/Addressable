@@ -4,25 +4,69 @@ using System.Collections.Generic;
 using DG.Tweening;
 using UniRx;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-public enum PlayerMove
-{
-    Left,
-    Right,
-    Back,
-    Forward,
-}
 
 public class Player : MonoBehaviour
 {
     public PlayerController playerController;
     public Animator animator;
+    public float jumpHeight;
+    public float moveDuration;
+    public float lerp;
+
+    private ColorMatchContent _content;
+    private Vector3Int _pos;
     
     public void Initialized(Vector3 pos)
     {
         transform.position = new Vector3(pos.x, pos.y+(transform.localScale.y/2.0f), pos.z);
+        _content = Main.Ins.MainGame.GetGame<ColorMatchContent>();
+        
+        playerController.OnMove.Subscribe((move) =>
+        {
+            if (move == PlayerMove.Left)
+            {
+                Check(PlayerMove.Left);
+            }
+            else if (move == PlayerMove.Right)
+            {
+                Check(PlayerMove.Right);
+            }
+            else if (move == PlayerMove.Back)
+            {
+                Check(PlayerMove.Back);
+            }
+            else if (move == PlayerMove.Forward)
+            {
+                _content.Select(_pos.x);
+            }
+        }).AddTo(this);
+        
+        _content.OnNext.Subscribe((level) =>
+        {
+            _pos.y = level;
+            Move(PlayerMove.Forward,new Vector3(_pos.x, _pos.y, _pos.y));
+        }).AddTo(this);
     }
-    public void Move(PlayerMove move, Vector3 pos)
+    
+    private void Check(PlayerMove move)
+    {
+        if (!_content.IsEndGame)
+        {
+            if (move == PlayerMove.Left && (_pos.x-1) >= 0)
+            {
+                _pos.x--;
+            }
+            else if (move == PlayerMove.Right && (_pos.x + 1) < _content.LevelData.GetValue(_pos.y).cube_count)
+            {
+                _pos.x++;
+            }
+            Move(move, new Vector3(_pos.x, _pos.y, _pos.y));
+        }
+    }
+    
+    private void Move(PlayerMove move, Vector3 pos)
     {
         var movePos = new Vector3(pos.x, pos.y+(transform.localScale.y/2.0f), pos.z);
         
@@ -44,52 +88,48 @@ public class Player : MonoBehaviour
         }
     }
     
-    public float _jumpHeight = 0.2f;
-    public float _moveDuration = 0.2f;
-    public float _lerp = 0.5f;
-    
-    public void MoveLeft(Vector3 movePos)
+    private void MoveLeft(Vector3 movePos)
     {
         transform.rotation = Quaternion.LookRotation(Vector3.left);
         animator.SetTrigger("Attack");
 
         Vector3 startPos = transform.position;
-        Vector3 midPos = Vector3.Lerp(startPos, movePos, _lerp);
-        midPos.y += _jumpHeight;
+        Vector3 midPos = Vector3.Lerp(startPos, movePos, lerp);
+        midPos.y += jumpHeight;
 
         Sequence seq = DOTween.Sequence();
-        seq.Append(transform.DOMove(midPos, _moveDuration / 2f).SetEase(Ease.OutQuad));
-        seq.Append(transform.DOMove(movePos, _moveDuration / 2f).SetEase(Ease.InQuad));
+        seq.Append(transform.DOMove(midPos, moveDuration / 2f).SetEase(Ease.OutQuad));
+        seq.Append(transform.DOMove(movePos, moveDuration / 2f).SetEase(Ease.InQuad));
     }
 
-    public void MoveRight(Vector3 movePos)
+    private void MoveRight(Vector3 movePos)
     {
         transform.rotation = Quaternion.LookRotation(Vector3.right);
         animator.SetTrigger("Attack");
 
         Vector3 startPos = transform.position;
-        Vector3 midPos = Vector3.Lerp(startPos, movePos, _lerp);
-        midPos.y += _jumpHeight;
+        Vector3 midPos = Vector3.Lerp(startPos, movePos, lerp);
+        midPos.y += jumpHeight;
 
         Sequence seq = DOTween.Sequence();
-        seq.Append(transform.DOMove(midPos, _moveDuration / 2f).SetEase(Ease.OutQuad));
-        seq.Append(transform.DOMove(movePos, _moveDuration / 2f).SetEase(Ease.InQuad));
+        seq.Append(transform.DOMove(midPos, moveDuration / 2f).SetEase(Ease.OutQuad));
+        seq.Append(transform.DOMove(movePos, moveDuration / 2f).SetEase(Ease.InQuad));
     }
 
-    public void MoveBack()
+    private void MoveBack()
     {
         transform.rotation = Quaternion.LookRotation(Vector3.back);
     }
 
-    public void MoveForward(Vector3 movePos)
+    private void MoveForward(Vector3 movePos)
     {
         transform.rotation = Quaternion.LookRotation(Vector3.forward);
         animator.SetTrigger("Attack");
         Vector3 startPos = transform.position;
-        Vector3 midPos = Vector3.Lerp(startPos, movePos, _lerp);
-        midPos.y += _jumpHeight;
+        Vector3 midPos = Vector3.Lerp(startPos, movePos, lerp);
+        midPos.y += jumpHeight;
         Sequence seq = DOTween.Sequence();
-        seq.Append(transform.DOMove(midPos, _moveDuration / 2f).SetEase(Ease.OutQuad));
-        seq.Append(transform.DOMove(movePos, _moveDuration / 2f).SetEase(Ease.InQuad));
+        seq.Append(transform.DOMove(midPos, moveDuration / 2f).SetEase(Ease.OutQuad));
+        seq.Append(transform.DOMove(movePos, moveDuration / 2f).SetEase(Ease.InQuad));
     }
 }

@@ -31,7 +31,7 @@ public class MainGame : MonoBehaviour
 
     private void LoadGame()
     {
-        var prefab = Resources.Load<GameContent>($"{ResourcesPath.GamePath}{"ColorMatch3D"}");
+        var prefab = Resources.Load<GameContent>($"{ResourcesPath.GamePath}{"ColorMatch"}");
         _gameContent = Instantiate(prefab);
         _gameContent.Initialized();
         _gameContent.gameObject.SetActive(false);
@@ -63,5 +63,10 @@ public class MainGame : MonoBehaviour
         _onEnd.OnNext(Unit.Default);
         _gameContent.gameObject.SetActive(false);
         //AdsManager.Ins.TryShowAdOnGameOver();
+    }
+
+    public T GetGame<T>() where T : GameContent
+    {
+        return _gameContent as T;
     }
 }

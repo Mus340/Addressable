@@ -7,87 +7,125 @@ using Random = UnityEngine.Random;
 
 public class ColorMatchContent : GameContent
 {
+    private Player _player;
+    private Enemy _enemy;
+    
     public IObservable<int> OnNext => _onNext;
     private ISubject<int> _onNext = new Subject<int>();
     
-    private IDisposable _timerDisposable;
-    public ReactiveProperty<float> TimeLeft {get; private set;}
+    public Transform barParent;
+    public ColorCubeBar cubeBar;
+    private ObjectPool<ColorCubeBar> _cubeBarPool;
+    private Queue<ColorCubeBar> _useCubeQueue;
     
-    public List<ColorMatchItem> colorMatchItemList;
-
-    private int _answerIndex;
-    private bool _isEndGame;
-    private int _level;
+    private List<int> _answerList;
+    public DataTable<LevelData> LevelData { get; private set; }= new();
     
     public int MaxScore {get; private set;}
     public int Score {get; private set;}
 
-    public readonly int TIMER_TIME = 5;
+    public bool IsEndGame { get; private set; }
+    
+    public int _level;
+    private int _curXPos;
+    
+    private const int CUBE_RANGE = 30;
     
     public override void Initialized()
     {
-        for (int i = 0; i < colorMatchItemList.Count; i++)
-        {
-            colorMatchItemList[i].SetIndex(i);
-        }
+        _useCubeQueue = new();
+        LevelData.Load();
+        _cubeBarPool = new ObjectPool<ColorCubeBar>(cubeBar, CUBE_RANGE, barParent);
     }
     
     public override void Begin()
     {
-        TimeLeft = new ReactiveProperty<float>();
-        _timerDisposable = new CompositeDisposable();
-        _isEndGame = false;
-        _level = 1;
+        _useCubeQueue = new Queue<ColorCubeBar>();
+        
+        _answerList = new();
+        IsEndGame = false;
+        _level = 0;
         Score = 0;
         MaxScore = Main.Ins.MainData.UserData.UserInfo.Score;
+        _curXPos = 0;
         
-        StartStage(_level);
-        StartTimer(TIMER_TIME);
+        for (int i = 0; i < LevelData.GetLength(); i++)
+        {
+            _answerList.Add(Random.Range(0, LevelData.GetValue(i).cube_count));
+        }
+        for (int i = 0; i < CUBE_RANGE; i++)
+        {
+            var bar = _cubeBarPool.Get();
+            bar.SetData(LevelData.GetValue(i), _answerList[i]);
+            _useCubeQueue.Enqueue(bar);
+        }
+        
+        _player = Instantiate(Resources.Load<Player>(ResourcesPath.PlayerPath));
+        _player.Initialized(new Vector3(_curXPos, _level, _level));
+        Main.Ins.MainCamera.Follow(_player.transform);
+        
+        var curPlayCount = Main.Ins.MainData.UserData.UserInfo.PlayCount;
+        Main.Ins.MainData.UserData.SavePlayCount(++curPlayCount);
+
+        OnNext.Take(1).Subscribe((level) =>
+        {
+            if (level == 1)
+            {
+                _enemy = Instantiate(Resources.Load<Enemy>(ResourcesPath.EnemyPath));
+                _enemy.Initialize();
+            }
+        });
     }
     
     public override void End()
-    {
+    {      
         if (Score > MaxScore)
         {
             MaxScore = Score;
             Main.Ins.MainData.UserData.SaveScore(MaxScore);
             Main.Ins.MainData.RankData.SaveMaxScore(MaxScore);
         }
-        var curPlayCount = Main.Ins.MainData.UserData.UserInfo.PlayCount;
-        Main.Ins.MainData.UserData.SavePlayCount(++curPlayCount);
-        StopTimer();
-    }
-    
-    private void StartStage(int level)
-    {
-        TimeLeft.Value = TIMER_TIME;
-        _answerIndex = Random.Range(0, colorMatchItemList.Count);
-        var color = GetColor(level);
-        foreach (var item in colorMatchItemList)
+        foreach (var bar in _useCubeQueue)
         {
-            item.SetItem(color);
+            bar.ResetPool();
+            _cubeBarPool.ReturnToPool(bar);
         }
-        var fadeFactor = Mathf.Lerp(1f, 0.05f, Mathf.Log(level, 50));
-        var lerpColor = Color.Lerp(color, Color.white, fadeFactor);
-        colorMatchItemList[_answerIndex].SetItem(lerpColor);
-    }
-    private void MoveNextStage()
-    {
-        StartStage(_level);
-        _onNext.OnNext(_level);
+        _useCubeQueue.Clear();
+        if (_player != null)
+        {
+            Destroy(_player.gameObject);
+        }
+        if (_enemy != null)
+        {
+            Destroy(_enemy.gameObject);
+        }
     }
 
-    public void Select(int select)
+    private void MoveNext()
     {
-        if (!_isEndGame)
+        if (_useCubeQueue.Count > CUBE_RANGE + 5)
         {
-            if (_answerIndex == select)
+            var old = _useCubeQueue.Dequeue();
+            old.ResetPool();
+            _cubeBarPool.ReturnToPool(old);
+        }
+        var bar = _cubeBarPool.Get();
+        bar.SetData(LevelData.GetValue(_level-1+CUBE_RANGE), _answerList[_level-1+CUBE_RANGE]);
+        _useCubeQueue.Enqueue(bar);
+        _onNext.OnNext(_level);
+    }
+    
+    
+    public void Select(int index)
+    {
+        if (!IsEndGame)
+        {
+            if (index == _answerList[_level+1])
             {
                 Success();
             }
             else
             {
-                ShowAnswer(select);
                 StartCoroutine(Fail());
             }
         }
@@ -96,15 +134,12 @@ public class ColorMatchContent : GameContent
     private void Success()
     {
         _level++;
-        Score += _level + (int)TimeLeft.Value;
-
-        MoveNextStage();
+        MoveNext();
     }
     
     private IEnumerator Fail()
     {
-        _isEndGame = true;
-        StopTimer();
+        IsEndGame = true;
         yield return new WaitForSeconds(2f);
         var popup = UIMain.Ins.UiPopup.GetPopup<UIColorMatchRetryPopup>(PopupType.ColorMatchRetry);
         popup.Set(Score, MaxScore);
@@ -112,62 +147,5 @@ public class ColorMatchContent : GameContent
         popup.AddRetryEvent(Main.Ins.MainTime.Resume);
         popup.AddExitEvent(Main.Ins.MainTime.Resume);
         popup.gameObject.SetActive(true);
-    }
-
-    private void ShowAnswer(int? select = null)
-    {
-        if (select == null)
-        {
-            colorMatchItemList[_answerIndex].ShowSuccess();
-        }
-        else
-        {
-            colorMatchItemList[select.Value].ShowFail();
-            colorMatchItemList[_answerIndex].ShowSuccess();
-        }
-    }
-    
-    private void StartTimer(float time)
-    {
-        TimeLeft.Value = time;
-        _timerDisposable = Observable
-            .Interval(TimeSpan.FromSeconds(0.01f))
-            .TakeWhile(_ => TimeLeft.Value > 0)
-            .Subscribe(_ =>
-            {
-                TimeLeft.Value -= 0.01f;
-                TimeLeft.Value = Mathf.Max(TimeLeft.Value, 0f);
-
-                if (TimeLeft.Value <= 0)
-                {
-                    ShowAnswer();
-                    StartCoroutine(Fail());
-                }
-            })
-            .AddTo(this);
-    }
-
-    private void StopTimer()
-    {
-        TimeLeft?.Dispose();
-        TimeLeft = null;
-        _timerDisposable?.Dispose();
-        _timerDisposable = null;
-    }
-
-    private Color GetColor(int level)
-    { 
-        var color = Color.white;
-        switch ((level-1) % 7)
-        {
-            case 0: color = new Color(1f, 0.4f, 0.4f); break;
-            case 1: color = new Color(1f, 0.6f, 0.3f); break;
-            case 2: color = new Color(1f, 1f, 0.5f); break;
-            case 3: color = new Color(0.5f, 1f, 0.5f); break;
-            case 4: color = new Color(0.5f, 0.7f, 1f); break;
-            case 5: color = new Color(0.6f, 0.5f, 1f); break;
-            case 6: color = new Color(0.8f, 0.5f, 1f); break;
-        }
-        return color;
     }
 }

@@ -17,11 +17,9 @@ public class ColorCubeBar : MonoBehaviour
             _cubes = new ObjectPool<ColorCubeItem>(colorCube, 6,transform);
         }
         var color = ColorConfig.GetColor(data.id);
-        var fadeFactor = Mathf.Lerp(1f, 0.05f, Mathf.Log(data.id, 70));
-        var lerpColor = Color.Lerp(color, Color.white, fadeFactor);
-        
+        var lerpColor = Color.Lerp(color, Color.white, data.color_value);
         transform.localPosition = new Vector3(0, data.id, data.id);
-        for (int i = 0; i < data.block_count; i++)
+        for (int i = 0; i < data.cube_count; i++)
         {
             var cube = _cubes.Get();
             cube.transform.localPosition = new Vector3(i, 0, 0);
