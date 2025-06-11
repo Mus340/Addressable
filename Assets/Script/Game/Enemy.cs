@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DG.Tweening;
 using UniRx;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public enum EnemyState
 {
@@ -12,21 +13,23 @@ public enum EnemyState
 }
 public class Enemy : MonoBehaviour
 {
+    public IObservable<Unit> OnNext => _onNext;
+    private ISubject<Unit> _onNext = new Subject<Unit>();
+    public Vector3Int Pos { get; private set; }
+
     private DataTable<EnemyData> _enemyData = new();
-    private Vector3Int _pos;
     
     private ColorMatchContent _content;
     private Player _player;
-    
     private Tween _moveTween;
-
     private EnemyState _state;
+    
     public void Initialize()
     {
         _enemyData.Load();
         _content = Main.Ins.MainGame.GetGame<ColorMatchContent>();
         _player = _content.Player;
-        _pos = Vector3Int.zero;
+        Pos = Vector3Int.zero;
         _state = EnemyState.Climb;
         Move();
     }
@@ -36,7 +39,7 @@ public class Enemy : MonoBehaviour
         if (!_content.IsEndGame)
         {
             _state = EnemyState.Climb;
-            if (_pos.x == _content.AnswerList[_pos.y+1])
+            if (Pos.x == _content.AnswerList[Pos.y+1])
             {
                 MoveY();
             }
@@ -49,16 +52,16 @@ public class Enemy : MonoBehaviour
 
     private void MoveX()
     {
-        var targetX = _content.AnswerList[_pos.y+1];
-        var targetPos = new Vector3Int(targetX, _pos.y, _pos.z);
-        var blockCount = Mathf.Abs(targetPos.x - _pos.x);
+        var targetX = _content.AnswerList[Pos.y+1];
+        var targetPos = new Vector3Int(targetX, Pos.y, Pos.z);
+        var blockCount = Mathf.Abs(targetPos.x - Pos.x);
         float totalDuration = blockCount / _enemyData.GetValue(_content.Level).speed;
         LookAtDirection(targetPos);
         _moveTween?.Kill();
         _moveTween = transform.DOMove(targetPos, totalDuration).SetEase(Ease.InQuad).OnComplete(() =>
             {
-                _pos = targetPos;
-                if (_player.GetPos().y == _pos.y)
+                Pos = targetPos;
+                if (_player.GetPos().y == Pos.y)
                 {
                     Catch(_player.GetPos());
                 }
@@ -71,10 +74,10 @@ public class Enemy : MonoBehaviour
 
     private void MoveY()
     {
-        var targetPos = new Vector3Int(_pos.x, _pos.y+1, _pos.z+1);
+        var targetPos = new Vector3Int(Pos.x, Pos.y+1, Pos.z+1);
         var speed = _enemyData.GetValue(_content.Level).speed;
         var duration = 1f / speed;
-        Vector3 midPos = Vector3.Lerp(_pos, targetPos, 1.0f);
+        Vector3 midPos = Vector3.Lerp(Pos, targetPos, 1.0f);
         midPos.y += 0.2f;
         
         LookAtDirection(targetPos);
@@ -83,8 +86,9 @@ public class Enemy : MonoBehaviour
         moveTween.Append(transform.DOMove(targetPos, duration / 2f).SetEase(Ease.InQuad));
         moveTween.OnComplete(() =>
         {
-            _pos = targetPos;
-            if (_player.GetPos().y == _pos.y)
+            Pos = targetPos;
+            _onNext.OnNext(Unit.Default);
+            if (_player.GetPos().y == Pos.y)
             {
                 Catch(_player.GetPos());
             }
@@ -105,16 +109,16 @@ public class Enemy : MonoBehaviour
         _state = EnemyState.Catch;
 
         float speed = _enemyData.GetValue(_content.Level).speed;
-        var distance = Mathf.Abs(target.x - _pos.x);
+        var distance = Mathf.Abs(target.x - Pos.x);
         float duration = distance / speed;
         LookAtDirection(target);
         _moveTween = transform.DOMove((Vector3)target, duration)
             .SetEase(Ease.InOutQuad)
             .OnComplete(() =>
             {
-                _pos = target;
+                Pos = target;
 
-                if (_player.GetPos().y == _pos.y)
+                if (_player.GetPos().y == Pos.y)
                 {
                     Catch(_player.GetPos());
                 }

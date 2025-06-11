@@ -10,18 +10,18 @@ using UnityEngine.UI;
 public class UIColorMatch : UIContentPanel
 {
     public Text scoreText;
-    public Text timerText;
-
-    private Tween _scoreTween;
     
+    private Tween _scoreTween;
     private int _prevScore;
 
     public GameObject posPanel;
     public GameObject curScorePos;
     public GameObject maxScorePos;
+    public GameObject enemyPos;
     public UIRankPos uIRankPosOrigin;
     private List<UIRankPos> _rankPosList;
-    
+
+    private ColorMatchContent _content;
     protected override void Initialize()
     {
         _rankPosList = new();
@@ -37,64 +37,74 @@ public class UIColorMatch : UIContentPanel
 
     protected override void Enter()
     {
-        //var game = Main.Ins.MainGame.GameContentProvider.GetGameContent<ColorMatchContent>(GameType.ColorMatch);
-        //_prevScore = game.Score;
-        //scoreText.text = $"{game.Score}";
-//
-        //foreach (var rankItem in _rankPosList)
-        //{
-        //    rankItem.gameObject.SetActive(true);
-        //}
-//
-        //maxScorePos.gameObject.SetActive(game.MaxScore > 0);
-        //
-        //SetPos();
-        //game.OnNext.Subscribe((_) =>
-        //{
-        //    SetPos();
-        //    ShowScoreEffect(game.Score,_prevScore);
-        //    _prevScore = game.Score;
-//
-        //}).AddTo(Disposable);
-        //
-        //timerText.text = $"{game.TIMER_TIME}";
-        //game.TimeLeft
-        //    .Subscribe(value =>
-        //    {
-        //        timerText.text = $"{(int)value + 1}";
-        //    })
-        //    .AddTo(this);
+        _content = Main.Ins.MainGame.GetGame<ColorMatchContent>();
+        _prevScore = _content.Score;
+        scoreText.text = $"{_content.Score}";
+
+        foreach (var rankItem in _rankPosList)
+        {
+            rankItem.gameObject.SetActive(true);
+        }
+        maxScorePos.gameObject.SetActive(_content.MaxScore > 0);
+        SetPos();
+        _content.OnNext.Subscribe((_) =>
+        {
+            SetPos();
+            ShowScoreEffect(_content.Score, _prevScore);
+            _prevScore = _content.Score;
+
+        }).AddTo(Disposable);
+        
+        _content.OnAddScore.Subscribe((_) =>
+        {          
+            SetPos();
+            ShowScoreEffect(_content.Score, _prevScore);
+            _prevScore = _content.Score;
+        }).AddTo(Disposable);
+        
+        _content.SpawnEnemy.Subscribe((_) =>
+        {
+            _content.Enemy.OnNext.Subscribe((_) =>
+            {
+                SetPos();
+            }).AddTo(Disposable);
+        }).AddTo(Disposable);
     }
-    
+
     private void SetPos()
     {
-        //var content = Main.Ins.MainGame.GameContentProvider.GetGameContent<ColorMatchContent>(GameType.ColorMatch);
-        //var curScore = content.Score;
-        //var maxScore = content.MaxScore;
-//
-        //var rankList = Main.Ins.MainData.RankData.GetRankList();
-        //float max = Mathf.Max(curScore, maxScore, rankList[0].MaxScore, 1f);
-        //float panelWidth = ((RectTransform)posPanel.transform).rect.width;
-//
-        //SetXPositionSmooth(curScorePos, curScore, max, panelWidth);
-        //SetXPositionSmooth(maxScorePos.gameObject, maxScore, max, panelWidth);
-//
-        //for (int i = 0; i < _rankPosList.Count; i++)
-        //{
-        //    if (curScore >= rankList[i].MaxScore)
-        //    {
-        //        _rankPosList[i].gameObject.gameObject.SetActive(false);
-        //    }
-        //}
-        //
-        //for (int i = 0; i < _rankPosList.Count; i++)
-        //{
-        //    SetXPositionSmooth(_rankPosList[i].gameObject, rankList[i].MaxScore, max, panelWidth);
-        //}
+        var curScore = _content.Score;
+        var maxScore = _content.MaxScore;
+        var enemyScore = 0;
+        if (_content.Enemy != null)
+        {
+            enemyScore = _content.Enemy.Pos.y;
+        }
+        
+        var rankList = Main.Ins.MainData.RankData.GetRankList();
+        var max = Mathf.Max(curScore, maxScore, rankList[0].MaxScore, 1f);
+        
+        SetXPositionSmooth(curScorePos, curScore, max);
+        SetXPositionSmooth(maxScorePos.gameObject, maxScore, max);
+        SetXPositionSmooth(enemyPos, enemyScore, _content.Player.GetPos().y);
+        
+        for (int i = 0; i < _rankPosList.Count; i++)
+        {
+            if (curScore >= rankList[i].MaxScore)
+            {
+                _rankPosList[i].gameObject.gameObject.SetActive(false);
+            }
+        }
+        
+        for (int i = 0; i < _rankPosList.Count; i++)
+        {
+            SetXPositionSmooth(_rankPosList[i].gameObject, rankList[i].MaxScore, max);
+        }
     }
     
-    private void SetXPositionSmooth(GameObject obj, float score, float maxScore,float panelWidth)
+    private void SetXPositionSmooth(GameObject obj, float score, float maxScore)
     {
+        var panelWidth = ((RectTransform)posPanel.transform).rect.width;
         var normalized = Mathf.Clamp01(score / maxScore);
         var rt = obj.GetComponent<RectTransform>();
         rt.DOAnchorPos(new Vector2(normalized * panelWidth, 0), 0.3f)

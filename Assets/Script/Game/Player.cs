@@ -40,7 +40,7 @@ public class Player : MonoBehaviour
             }
             else if (move == PlayerMove.Back)
             {
-                Check(PlayerMove.Back);
+                Move(PlayerMove.Back, new Vector3(_pos.x, _pos.y, _pos.z));
             }
             else if (move == PlayerMove.Forward)
             {
@@ -64,13 +64,17 @@ public class Player : MonoBehaviour
             if (move == PlayerMove.Left && (_pos.x-1) >= 0)
             {
                 _pos.x--;
+                Move(move, new Vector3(_pos.x, _pos.y, _pos.z));
+                _onMove.OnNext(new Vector3Int(_pos.x, _pos.y, _pos.z));
+                _content.AddScore(1);
             }
             else if (move == PlayerMove.Right && (_pos.x + 1) < _content.LevelData.GetValue(_pos.y).cube_count)
             {
                 _pos.x++;
+                Move(move, new Vector3(_pos.x, _pos.y, _pos.z));
+                _onMove.OnNext(new Vector3Int(_pos.x, _pos.y, _pos.z));
+                _content.AddScore(1);
             }
-            Move(move, new Vector3(_pos.x, _pos.y, _pos.z));
-            _onMove.OnNext(new Vector3Int(_pos.x, _pos.y, _pos.z));
         }
     }
     
@@ -140,4 +144,31 @@ public class Player : MonoBehaviour
         seq.Append(transform.DOMove(midPos, moveDuration / 2f).SetEase(Ease.OutQuad));
         seq.Append(transform.DOMove(movePos, moveDuration / 2f).SetEase(Ease.InQuad));
     }
+
+    public void PlayCrashEffect()
+    {        
+        var movePos = new Vector3(_pos.x, _pos.y+(transform.localScale.y/2.0f), _pos.z);
+        transform.rotation = Quaternion.LookRotation(Vector3.forward);
+        animator.SetTrigger("Attack");
+
+        Vector3 startPos = transform.position;
+        Vector3 midPos = Vector3.Lerp(startPos, movePos, lerp);
+        midPos.y += 0.5f;
+        
+        Sequence seq = DOTween.Sequence();
+
+        // 1. 점프 돌진
+        seq.Append(transform.DOMove(midPos, moveDuration / 2f).SetEase(Ease.OutQuad));
+        seq.Append(transform.DOMove(movePos, moveDuration / 2f).SetEase(Ease.InQuad));
+
+        startPos.y += 0.3f;
+        startPos.z += 0.2f;
+        // 3. 뒤로 튕기기
+        seq.Append(transform.DOMove(startPos, 0.1f).SetEase(Ease.OutQuad));
+
+        // 4. 넘어진 회전 (예: 앞으로 쓰러짐)
+        Quaternion fallRotation = Quaternion.Euler(-90f, transform.rotation.eulerAngles.y, 0f);
+        seq.Join(transform.DORotateQuaternion(fallRotation, 0.2f).SetEase(Ease.InQuad));
+    }
+
 }

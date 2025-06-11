@@ -23,10 +23,10 @@ public class ColorCubeBar : MonoBehaviour
         {
             var cube = _cubes.Get();
             cube.transform.localPosition = new Vector3(i, 0, 0);
-            cube.SetColor(color);
+            cube.SetData(data.id, i, color);
             _useCubes.Add(cube);
         }
-        _useCubes[answerIndex].SetColor(lerpColor);
+        _useCubes[answerIndex].SetData(data.id, answerIndex, lerpColor);
     }
 
     public void ResetPool()

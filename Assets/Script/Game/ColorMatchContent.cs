@@ -15,6 +15,16 @@ public class ColorMatchContent : GameContent
     public IObservable<int> OnNext => _onNext;
     private ISubject<int> _onNext = new Subject<int>();
     
+    public IObservable<Unit> OnAddScore => _onAddScore;
+    private ISubject<Unit> _onAddScore = new Subject<Unit>();
+    
+    public IObservable<Unit> OnFail => _onFail;
+    private ISubject<Unit> _onFail = new Subject<Unit>();
+
+    
+    public IObservable<Unit> SpawnEnemy => _spawnEnemy;
+    private ISubject<Unit> _spawnEnemy = new Subject<Unit>();
+    
     public Transform barParent;
     public ColorCubeBar cubeBar;
     private ObjectPool<ColorCubeBar> _cubeBarPool;
@@ -78,6 +88,7 @@ public class ColorMatchContent : GameContent
             {
                 Enemy = Instantiate(Resources.Load<Enemy>(ResourcesPath.EnemyPath));
                 Enemy.Initialize();
+                _spawnEnemy.OnNext(Unit.Default);
             }
         }).AddTo(_disposable);
     }
@@ -108,6 +119,12 @@ public class ColorMatchContent : GameContent
         _disposable = null;
     }
 
+    public void AddScore(int value)
+    {
+        Score += value;
+        _onAddScore.OnNext(Unit.Default);
+    }
+    
     private void MoveNext()
     {
         if (_useCubeQueue.Count > CUBE_RANGE + 5)
@@ -133,6 +150,7 @@ public class ColorMatchContent : GameContent
             }
             else
             {
+                Player.PlayCrashEffect();
                 Fail();
             }
         }
@@ -140,6 +158,7 @@ public class ColorMatchContent : GameContent
     
     private void Success()
     {
+        AddScore(Level * 5);
         Level++;
         MoveNext();
     }
@@ -150,6 +169,7 @@ public class ColorMatchContent : GameContent
         {
             IsEndGame = true;
             StartCoroutine(FailCoroutine());
+            _onFail.OnNext(Unit.Default);
         }
     }
     private IEnumerator FailCoroutine()
