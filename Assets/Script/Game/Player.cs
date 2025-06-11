@@ -147,6 +147,7 @@ public class Player : MonoBehaviour
 
     public void PlayCrashEffect()
     {        
+        Main.Ins.MainEffect.Play(EffectType.Hit, new Vector3(_pos.x, _pos.y+0.7f, _pos.z));
         var movePos = new Vector3(_pos.x, _pos.y+(transform.localScale.y/2.0f), _pos.z);
         transform.rotation = Quaternion.LookRotation(Vector3.forward);
         animator.SetTrigger("Attack");
@@ -157,18 +158,40 @@ public class Player : MonoBehaviour
         
         Sequence seq = DOTween.Sequence();
 
-        // 1. 점프 돌진
         seq.Append(transform.DOMove(midPos, moveDuration / 2f).SetEase(Ease.OutQuad));
         seq.Append(transform.DOMove(movePos, moveDuration / 2f).SetEase(Ease.InQuad));
 
         startPos.y += 0.3f;
         startPos.z += 0.2f;
-        // 3. 뒤로 튕기기
+        
         seq.Append(transform.DOMove(startPos, 0.1f).SetEase(Ease.OutQuad));
 
-        // 4. 넘어진 회전 (예: 앞으로 쓰러짐)
         Quaternion fallRotation = Quaternion.Euler(-90f, transform.rotation.eulerAngles.y, 0f);
         seq.Join(transform.DORotateQuaternion(fallRotation, 0.2f).SetEase(Ease.InQuad));
     }
+    
+    public void PlayTransparentEffect()
+    {
+        foreach (var render in GetComponentsInChildren<Renderer>())
+        {
+            foreach (var mat in render.materials) // 머티리얼이 여러 개일 수 있음
+            {
+                SetMaterialToTransparent(mat);
+                mat.DOFade(0.5f, 0.5f); // 0.5초 동안 30% 투명
+            }
+        }
+    }
 
+    private void SetMaterialToTransparent(Material mat)
+    {
+        // Standard Shader 기준
+        mat.SetFloat("_Mode", 3); // Transparent
+        mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        mat.SetInt("_ZWrite", 0);
+        mat.DisableKeyword("_ALPHATEST_ON");
+        mat.DisableKeyword("_ALPHABLEND_ON");
+        mat.EnableKeyword("_ALPHAPREMULTIPLY_ON");
+        mat.renderQueue = 3000;
+    }
 }

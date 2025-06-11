@@ -24,6 +24,8 @@ public class Main : MonoBehaviour
     public MainTime MainTime { get; private set; }
     public MainData MainData { get; private set; }
     public MainCamera MainCamera { get; private set; } 
+    public MainEffect MainEffect { get; private set; } 
+    
     public bool LoadComplete { get; private set; }
     public IObservable<Unit> OnLoadComplete => _onLoadComplete;
     private Subject<Unit> _onLoadComplete = new Subject<Unit>();
@@ -35,6 +37,7 @@ public class Main : MonoBehaviour
         MainTime = GetComponent<MainTime>();
         MainData = GetComponent<MainData>();
         MainCamera = GetComponent<MainCamera>();
+        MainEffect = GetComponent<MainEffect>();
         
         Initialize();
     }
@@ -50,7 +53,8 @@ public class Main : MonoBehaviour
             await nickName.OpenNickName();
         }
         await AdsManager.Ins.InitializeAdmobAsync();
-
+        MainEffect.Initialize();
+        
         LoadComplete = true;
         _onLoadComplete.OnNext(Unit.Default);
         _onLoadComplete.OnCompleted();

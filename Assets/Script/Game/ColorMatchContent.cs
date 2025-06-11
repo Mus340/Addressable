@@ -88,9 +88,15 @@ public class ColorMatchContent : GameContent
             {
                 Enemy = Instantiate(Resources.Load<Enemy>(ResourcesPath.EnemyPath));
                 Enemy.Initialize();
+                Enemy.OnCatch.Subscribe((_) =>
+                {
+                    Player.PlayTransparentEffect();
+                    Fail();
+                }).AddTo(_disposable);
                 _spawnEnemy.OnNext(Unit.Default);
             }
         }).AddTo(_disposable);
+        
     }
     
     public override void End()

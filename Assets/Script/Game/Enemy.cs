@@ -15,6 +15,9 @@ public class Enemy : MonoBehaviour
 {
     public IObservable<Unit> OnNext => _onNext;
     private ISubject<Unit> _onNext = new Subject<Unit>();
+    
+    public IObservable<Unit> OnCatch => _onCatch;
+    private ISubject<Unit> _onCatch = new Subject<Unit>();
     public Vector3Int Pos { get; private set; }
 
     private DataTable<EnemyData> _enemyData = new();
@@ -31,9 +34,15 @@ public class Enemy : MonoBehaviour
         _player = _content.Player;
         Pos = Vector3Int.zero;
         _state = EnemyState.Climb;
+        StartCoroutine(SpawnEffect());
+    }
+
+    private IEnumerator SpawnEffect()
+    {
+        Main.Ins.MainEffect.Play(EffectType.EnemySpawn, new Vector3(Pos.x,Pos.y+1.2f,Pos.z));
+        yield return new WaitForSeconds(0.5f);
         Move();
     }
-    
     private void Move()
     {
         if (!_content.IsEndGame)
@@ -139,9 +148,10 @@ public class Enemy : MonoBehaviour
         Quaternion targetRotation = Quaternion.LookRotation(direction, Vector3.up);
         transform.DORotateQuaternion(targetRotation, 0.2f).SetEase(Ease.InOutSine);
     }
+    
     private void OnTriggerEnter(Collider other)
     {
         _moveTween?.Kill();
-        _content.Fail();
+        _onCatch.OnNext(Unit.Default);
     }
 }

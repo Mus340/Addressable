@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class ResourcesPath
 {
+    public const string EffectPath = "Effect/"; 
     public const string EnemyPath = "Enemy/Enemy"; 
     public const string PlayerPath = "Player/Player"; 
     public const string NickNamePath = "UI/NickName"; 
