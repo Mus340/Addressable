@@ -1,5 +1,5 @@
 public struct EnemyData
 {
     public int id;
-    public int speed;
+    public float speed;
 }

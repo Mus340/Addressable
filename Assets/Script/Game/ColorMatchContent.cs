@@ -10,7 +10,8 @@ public class ColorMatchContent : GameContent
 {
     public Player Player { get; private set; }
     public Enemy Enemy  { get; private set; }
-    
+
+    private CompositeDisposable _disposable;
     public IObservable<int> OnNext => _onNext;
     private ISubject<int> _onNext = new Subject<int>();
     
@@ -42,6 +43,7 @@ public class ColorMatchContent : GameContent
     public override void Begin()
     {
         _useCubeQueue = new Queue<ColorCubeBar>();
+        _disposable = new CompositeDisposable();
         
         AnswerList = new();
         IsEndGame = false;
@@ -50,7 +52,9 @@ public class ColorMatchContent : GameContent
         MaxScore = Main.Ins.MainData.UserData.UserInfo.Score;
         _curXPos = 0;
         
-        for (int i = 0; i < LevelData.GetLength(); i++)
+        AnswerList.Add(0);
+        AnswerList.Add(3);
+        for (int i = 2; i < LevelData.GetLength(); i++)
         {
             AnswerList.Add(Random.Range(0, LevelData.GetValue(i).cube_count));
         }
@@ -68,14 +72,14 @@ public class ColorMatchContent : GameContent
         var curPlayCount = Main.Ins.MainData.UserData.UserInfo.PlayCount;
         Main.Ins.MainData.UserData.SavePlayCount(++curPlayCount);
 
-        OnNext.Take(1).Subscribe((level) =>
+        OnNext.Subscribe((level) =>
         {
             if (level == 1)
             {
                 Enemy = Instantiate(Resources.Load<Enemy>(ResourcesPath.EnemyPath));
                 Enemy.Initialize();
             }
-        });
+        }).AddTo(_disposable);
     }
     
     public override void End()
@@ -100,6 +104,8 @@ public class ColorMatchContent : GameContent
         {
             Destroy(Enemy.gameObject);
         }
+        _disposable?.Dispose();
+        _disposable = null;
     }
 
     private void MoveNext()
@@ -140,11 +146,14 @@ public class ColorMatchContent : GameContent
 
     public void Fail()
     {
-        StartCoroutine(FailCoroutine());
+        if (!IsEndGame)
+        {
+            IsEndGame = true;
+            StartCoroutine(FailCoroutine());
+        }
     }
     private IEnumerator FailCoroutine()
     {
-        IsEndGame = true;
         yield return new WaitForSeconds(2f);
         var popup = UIMain.Ins.UiPopup.GetPopup<UIColorMatchRetryPopup>(PopupType.ColorMatchRetry);
         popup.Set(Score, MaxScore);
