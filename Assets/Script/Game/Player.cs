@@ -1,17 +1,17 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using CartoonFX;
 using DG.Tweening;
 using UniRx;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
+using Sequence = DG.Tweening.Sequence;
 
 
 public class Player : MonoBehaviour
 {
-    public IObservable<Vector3Int> OnMove => _onMove;
-    private ISubject<Vector3Int> _onMove = new Subject<Vector3Int>();
-    
     public PlayerController playerController;
     public Animator animator;
     public float jumpHeight;
@@ -22,6 +22,7 @@ public class Player : MonoBehaviour
     private Vector3Int _pos;
 
     public Vector3Int GetPos() => _pos;
+    private Sequence _sequence;
     
     public void Initialized(Vector3 pos)
     {
@@ -53,7 +54,14 @@ public class Player : MonoBehaviour
             _pos.y = level;
             _pos.z = level;
             Move(PlayerMove.Forward,new Vector3(_pos.x, _pos.y, _pos.z));
-            _onMove.OnNext(new Vector3Int(_pos.x, _pos.y, _pos.z));
+        }).AddTo(this);
+
+        _content.SpawnEnemy.Subscribe((_) =>
+        {
+            _content.Enemy.OnCatch.Subscribe((_) =>
+            {
+                _sequence?.Kill();
+            }).AddTo(this);
         }).AddTo(this);
     }
     
@@ -65,15 +73,19 @@ public class Player : MonoBehaviour
             {
                 _pos.x--;
                 Move(move, new Vector3(_pos.x, _pos.y, _pos.z));
-                _onMove.OnNext(new Vector3Int(_pos.x, _pos.y, _pos.z));
-                _content.AddScore(1);
+                if (_content.Level > 0)
+                {
+                    _content.AddScore(1);
+                }
             }
             else if (move == PlayerMove.Right && (_pos.x + 1) < _content.LevelData.GetValue(_pos.y).cube_count)
             {
                 _pos.x++;
                 Move(move, new Vector3(_pos.x, _pos.y, _pos.z));
-                _onMove.OnNext(new Vector3Int(_pos.x, _pos.y, _pos.z));
-                _content.AddScore(1);
+                if (_content.Level > 0)
+                {
+                    _content.AddScore(1);
+                }
             }
         }
     }
@@ -109,9 +121,9 @@ public class Player : MonoBehaviour
         Vector3 midPos = Vector3.Lerp(startPos, movePos, lerp);
         midPos.y += jumpHeight;
 
-        Sequence seq = DOTween.Sequence();
-        seq.Append(transform.DOMove(midPos, moveDuration / 2f).SetEase(Ease.OutQuad));
-        seq.Append(transform.DOMove(movePos, moveDuration / 2f).SetEase(Ease.InQuad));
+        _sequence = DOTween.Sequence();
+        _sequence.Append(transform.DOMove(midPos, moveDuration / 2f).SetEase(Ease.OutQuad));
+        _sequence.Append(transform.DOMove(movePos, moveDuration / 2f).SetEase(Ease.InQuad));
     }
 
     private void MoveRight(Vector3 movePos)
@@ -123,9 +135,9 @@ public class Player : MonoBehaviour
         Vector3 midPos = Vector3.Lerp(startPos, movePos, lerp);
         midPos.y += jumpHeight;
 
-        Sequence seq = DOTween.Sequence();
-        seq.Append(transform.DOMove(midPos, moveDuration / 2f).SetEase(Ease.OutQuad));
-        seq.Append(transform.DOMove(movePos, moveDuration / 2f).SetEase(Ease.InQuad));
+        _sequence = DOTween.Sequence();
+        _sequence.Append(transform.DOMove(midPos, moveDuration / 2f).SetEase(Ease.OutQuad));
+        _sequence.Append(transform.DOMove(movePos, moveDuration / 2f).SetEase(Ease.InQuad));
     }
 
     private void MoveBack()
@@ -140,9 +152,9 @@ public class Player : MonoBehaviour
         Vector3 startPos = transform.position;
         Vector3 midPos = Vector3.Lerp(startPos, movePos, lerp);
         midPos.y += jumpHeight;
-        Sequence seq = DOTween.Sequence();
-        seq.Append(transform.DOMove(midPos, moveDuration / 2f).SetEase(Ease.OutQuad));
-        seq.Append(transform.DOMove(movePos, moveDuration / 2f).SetEase(Ease.InQuad));
+        _sequence = DOTween.Sequence();
+        _sequence.Append(transform.DOMove(midPos, moveDuration / 2f).SetEase(Ease.OutQuad));
+        _sequence.Append(transform.DOMove(movePos, moveDuration / 2f).SetEase(Ease.InQuad));
     }
 
     public void PlayCrashEffect()
@@ -156,42 +168,17 @@ public class Player : MonoBehaviour
         Vector3 midPos = Vector3.Lerp(startPos, movePos, lerp);
         midPos.y += 0.5f;
         
-        Sequence seq = DOTween.Sequence();
+        _sequence = DOTween.Sequence();
 
-        seq.Append(transform.DOMove(midPos, moveDuration / 2f).SetEase(Ease.OutQuad));
-        seq.Append(transform.DOMove(movePos, moveDuration / 2f).SetEase(Ease.InQuad));
+        _sequence.Append(transform.DOMove(midPos, moveDuration / 2f).SetEase(Ease.OutQuad));
+        _sequence.Append(transform.DOMove(movePos, moveDuration / 2f).SetEase(Ease.InQuad));
 
         startPos.y += 0.3f;
         startPos.z += 0.2f;
         
-        seq.Append(transform.DOMove(startPos, 0.1f).SetEase(Ease.OutQuad));
+        _sequence.Append(transform.DOMove(startPos, 0.1f).SetEase(Ease.OutQuad));
 
         Quaternion fallRotation = Quaternion.Euler(-90f, transform.rotation.eulerAngles.y, 0f);
-        seq.Join(transform.DORotateQuaternion(fallRotation, 0.2f).SetEase(Ease.InQuad));
-    }
-    
-    public void PlayTransparentEffect()
-    {
-        foreach (var render in GetComponentsInChildren<Renderer>())
-        {
-            foreach (var mat in render.materials) // 머티리얼이 여러 개일 수 있음
-            {
-                SetMaterialToTransparent(mat);
-                mat.DOFade(0.5f, 0.5f); // 0.5초 동안 30% 투명
-            }
-        }
-    }
-
-    private void SetMaterialToTransparent(Material mat)
-    {
-        // Standard Shader 기준
-        mat.SetFloat("_Mode", 3); // Transparent
-        mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-        mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        mat.SetInt("_ZWrite", 0);
-        mat.DisableKeyword("_ALPHATEST_ON");
-        mat.DisableKeyword("_ALPHABLEND_ON");
-        mat.EnableKeyword("_ALPHAPREMULTIPLY_ON");
-        mat.renderQueue = 3000;
+        _sequence.Join(transform.DORotateQuaternion(fallRotation, 0.2f).SetEase(Ease.InQuad));
     }
 }

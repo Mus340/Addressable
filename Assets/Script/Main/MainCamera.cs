@@ -33,4 +33,10 @@ public class MainCamera : MonoBehaviour
         }
     }
 
+    public void UnFollow()
+    {
+        cineVirtual.Follow = null;
+        cineVirtual.LookAt = null;
+    }
+
 }

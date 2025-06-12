@@ -153,5 +153,45 @@ public class Enemy : MonoBehaviour
     {
         _moveTween?.Kill();
         _onCatch.OnNext(Unit.Default);
+        PlayCatchEffect();
+    }
+
+    private void PlayCatchEffect()
+    {
+        _player.transform.SetParent(this.transform);
+
+        Vector3 startPos = transform.position;
+        Vector3 toPlayer = _player.transform.position - transform.position;
+        toPlayer.y = 0f;
+        toPlayer.Normalize();
+        Vector3[] directions = { Vector3.forward, Vector3.back, Vector3.left, Vector3.right };
+        Vector3 closest = directions[0];
+        float maxDot = Vector3.Dot(toPlayer, closest);
+
+        for (int i = 1; i < directions.Length; i++)
+        {
+            float dot = Vector3.Dot(toPlayer, directions[i]);
+            if (dot > maxDot)
+            {
+                maxDot = dot;
+                closest = directions[i];
+            }
+        }
+        Vector3 flyDir = (closest == Vector3.left || closest == Vector3.right) ? closest : Vector3.left;
+        PlayParabolaAndFly(startPos, flyDir);
+    }
+
+    private void PlayParabolaAndFly(Vector3 startPos, Vector3 flyDir)
+    {
+        Vector3 targetPos = new Vector3(startPos.x, startPos.y + 5f, startPos.z);
+        Vector3 midPos = Vector3.Lerp(startPos, targetPos, 0.5f);
+        Vector3 flyPos = midPos + flyDir * 10f;
+
+        Quaternion targetRotation = Quaternion.LookRotation(flyDir, Vector3.up);
+
+        Sequence seq = DOTween.Sequence();
+        seq.Append(transform.DOMove(midPos, 0.7f).SetEase(Ease.OutQuad));
+        seq.Append(transform.DORotateQuaternion(targetRotation, 0.1f).SetEase(Ease.InOutSine));
+        seq.Append(transform.DOMove(flyPos, 0.7f).SetEase(Ease.InQuad));
     }
 }

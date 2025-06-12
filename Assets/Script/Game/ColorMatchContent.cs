@@ -90,7 +90,7 @@ public class ColorMatchContent : GameContent
                 Enemy.Initialize();
                 Enemy.OnCatch.Subscribe((_) =>
                 {
-                    Player.PlayTransparentEffect();
+                    Main.Ins.MainCamera.UnFollow();
                     Fail();
                 }).AddTo(_disposable);
                 _spawnEnemy.OnNext(Unit.Default);

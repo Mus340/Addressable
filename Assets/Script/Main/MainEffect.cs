@@ -12,14 +12,13 @@ public enum EffectType
 public class MainEffect : MonoBehaviour
 {
     public Transform parent;
-    private Dictionary<EffectType, CFXR_Effect> _effects;
-
+    private Dictionary<EffectType, GameObject> _effects;
     public void Initialize()
     {
-        _effects = new Dictionary<EffectType, CFXR_Effect>();
+        _effects = new Dictionary<EffectType, GameObject>();
         foreach (EffectType type in Enum.GetValues(typeof(EffectType)))
         {
-            var prefab = Resources.Load<CFXR_Effect>($"{ResourcesPath.EffectPath}{type}");
+            var prefab = Resources.Load<GameObject>($"{ResourcesPath.EffectPath}{type}");
             var effect = Instantiate(prefab, parent);
             effect.gameObject.SetActive(false);
             _effects.Add(type, effect);
