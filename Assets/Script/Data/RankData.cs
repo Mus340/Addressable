@@ -9,7 +9,7 @@ using UnityEngine;
 
 public enum Tier
 {
-    Brown = default,
+    Brown,
     Yellow,
     Green,
     Emerald,
@@ -39,7 +39,7 @@ public class RankData : MonoBehaviour
         await LoadRanker();
     }
     
-    public async Task LoadRanker()
+    private async Task LoadRanker()
     {
         var snapshot = await _reference.GetValueAsync();
 
@@ -53,8 +53,9 @@ public class RankData : MonoBehaviour
                 var data = JsonUtility.FromJson<Rank>(child.GetRawJsonValue());
                 allRanks.Add(data);
             }
-            SetTierRange(allRanks.Count);
+
             allRanks = allRanks.OrderByDescending(r => r.MaxScore).ToList();
+            SetTierRange(allRanks.Count);
 
             for (int i = 0; i < allRanks.Count; i++)
             {
@@ -63,7 +64,8 @@ public class RankData : MonoBehaviour
                 {
                     tierIndex = _rankUserRange.Count - 1;
                 }
-                var tier = (Tier)tierIndex;
+                int reversedTierIndex = (_rankUserRange.Count - 1) - tierIndex;
+                var tier = (Tier)reversedTierIndex;
 
                 if (!_rankDictionary.ContainsKey(tier))
                 {
@@ -96,17 +98,25 @@ public class RankData : MonoBehaviour
     
     public Tier GetTier()
     {
-        return Tier.Blue;
+        var score = Main.Ins.MainData.UserData.UserInfo.Score;
+        var tierIndex = _rankUserRange.FindIndex(range => score < range);
+        if (tierIndex == -1)
+        {
+            tierIndex = _rankUserRange.Count - 1;
+        }
+        return (Tier)tierIndex;
+        
     }
-    public List<Rank> GetRankList()
+    public List<Rank> GetRankList(Tier tier)
     {
-        return _rankDictionary[Tier.Blue];
+        return _rankDictionary[tier];
     }
     public int GetRankNumber()
     {
-        return 1;
+        var tier = GetTier();
+        var score = Main.Ins.MainData.UserData.UserInfo.Score;
+        return _rankDictionary[tier].FindIndex(p => p.MaxScore == score);
     }
-    
     
     public void SaveInfo(string userName)
     {
