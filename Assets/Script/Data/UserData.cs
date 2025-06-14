@@ -7,15 +7,32 @@ using Firebase.Extensions;
 using UnityEngine;
 
 
+public static class EnumHelper
+{
+    public static string ToStringValue<T>(T enumVal) where T : Enum
+    {
+        return enumVal.ToString();
+    }
+    public static T ParseEnum<T>(string value, T defaultValue = default) where T : struct, Enum
+    {
+        if (Enum.TryParse(value, out T result))
+        {
+            return result;
+        }
+        return defaultValue;
+    }
+}
+
 
 public class UserData : MonoBehaviour
 {
     public class User : ApplyToDictionary<User>
     {
-        public string Name;
+        public string Name = "EMPTY";
         public int PlayCount;
         public int Score;
-        public Tier Tier;
+        public string Tier;
+        public int Skin;
         public string FirstTime;
         public string LastTime;
     }
@@ -78,6 +95,7 @@ public class UserData : MonoBehaviour
             Debug.LogError($"저장 실패: {e}");
         }
     }
+    
     public void SaveLastTime(string nowTime)
     {
         UserInfo.LastTime = nowTime;

@@ -22,10 +22,15 @@ public class UIColorMatch : UIContentPanel
     public GameObject goldPos;
 
     private ColorMatchContent _content;
-    protected override void Initialize() { }
 
+    private List<RankData.Rank> _rankList;
+    
+    protected override void Initialize() { }
+    
     protected override void Enter()
     {
+        var tier= Main.Ins.MainData.RankData.GetTier();
+        _rankList = Main.Ins.MainData.RankData.GetRankList(tier);
         _content = Main.Ins.MainGame.GetGame<ColorMatchContent>();
         _prevScore = _content.Score;
         scoreText.text = $"{_content.Score}";
@@ -44,19 +49,15 @@ public class UIColorMatch : UIContentPanel
     private void SetPos()
     {
         var curScore = _content.Score;
-        var maxScore = 1000;
-
-        var tier = Main.Ins.MainData.RankData.GetTier();
-        var rankList = Main.Ins.MainData.RankData.GetRankList(tier);
-        var max = Mathf.Max(curScore, maxScore, rankList[0].MaxScore, 1f);
+        var maxScore = _content.MaxScore;
+        
+        var max = Mathf.Max(curScore, maxScore, _rankList[0].MaxScore, 1f);
 
         SetXPositionSmooth(curScorePos, curScore, max);
         SetXPositionSmooth(maxScorePos.gameObject, maxScore, max);
-        SetXPositionSmooth(bronzePos.gameObject, rankList[0].MaxScore, max);
-        SetXPositionSmooth(silverPos.gameObject, rankList[1].MaxScore, max);
-        SetXPositionSmooth(goldPos.gameObject, rankList[2].MaxScore, max);
-        
-        Debug.Log($"{rankList[0].MaxScore}.{rankList[1].MaxScore}.{rankList[2].MaxScore}");
+        SetXPositionSmooth(bronzePos.gameObject, _rankList[0].MaxScore, max);
+        SetXPositionSmooth(silverPos.gameObject, _rankList[1].MaxScore, max);
+        SetXPositionSmooth(goldPos.gameObject, _rankList[2].MaxScore, max);
     }
 
     private void SetXPositionSmooth(GameObject obj, float score, float maxScore)

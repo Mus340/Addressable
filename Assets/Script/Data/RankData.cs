@@ -14,7 +14,6 @@ public enum Tier
     Green,
     Emerald,
     Blue,
-    Pink,
     Red,
     Purple,
 }
@@ -25,6 +24,7 @@ public class RankData : MonoBehaviour
     {
         public string Name;
         public int MaxScore;
+        public int Skin;
     }
 
     public Sprite[] tierSprite;
@@ -105,11 +105,15 @@ public class RankData : MonoBehaviour
             tierIndex = _rankUserRange.Count - 1;
         }
         return (Tier)tierIndex;
-        
     }
+    
     public List<Rank> GetRankList(Tier tier)
     {
         return _rankDictionary[tier];
+    }
+    public Rank GetRankData(Tier tier,int index)
+    {
+        return _rankDictionary[tier][index];
     }
     public int GetRankNumber()
     {

@@ -20,7 +20,6 @@ public class ColorMatchContent : GameContent
     
     public IObservable<Unit> OnFail => _onFail;
     private ISubject<Unit> _onFail = new Subject<Unit>();
-
     
     public IObservable<Unit> SpawnEnemy => _spawnEnemy;
     private ISubject<Unit> _spawnEnemy = new Subject<Unit>();
@@ -75,7 +74,7 @@ public class ColorMatchContent : GameContent
             _useCubeQueue.Enqueue(bar);
         }
         
-        Player = Instantiate(Resources.Load<Player>(ResourcesPath.PlayerPath));
+        Player = Instantiate(Resources.Load<Player>($"{ResourcesPath.PlayerPath}_{Main.Ins.MainData.UserData.UserInfo.Skin}"));
         Player.Initialized(new Vector3(_curXPos, Level, Level));
         Main.Ins.MainCamera.Follow(Player.transform);
         

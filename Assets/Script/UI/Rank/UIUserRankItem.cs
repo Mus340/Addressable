@@ -19,10 +19,11 @@ public class UIUserRankItem : MonoBehaviour, IDynamicScrollViewItem
     public void onUpdateItem(int index)
     {
         _index = index;
-        //var rankData = Main.Ins.MainData.RankData.RankDictionary[index];
-        //nameText.text = rankData.Name;
-        //scoreText.text = rankData.MaxScore.ToString();
-        rankText.text = _index.ToString();
+        var tier = UIMain.Ins.UiPopup.GetPopup<UIRankingPopup>(PopupType.Ranking).SelectTier;
+        var rankData = Main.Ins.MainData.RankData.GetRankData(tier.Value,index);
+        nameText.text = rankData.Name;
+        scoreText.text = rankData.MaxScore.ToString();
+        rankText.text = (_index+1).ToString();
 
         if (index == 0)
         {
