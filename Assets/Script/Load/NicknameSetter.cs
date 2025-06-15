@@ -33,7 +33,7 @@ public class NicknameSetter : MonoBehaviour
         await Check(nickName, result);
     }
     
-    public async Task Check(string nickname, Action<string,bool> result)
+    private async Task Check(string nickname, Action<string,bool> result)
     {
         if (nickname.Length > 10)
         {
@@ -61,9 +61,8 @@ public class NicknameSetter : MonoBehaviour
             }
             result?.Invoke("닉네임이 변경되었습니다.",true);
             
-            Main.Ins.MainData.UserData.SaveName(nickname);
-            Main.Ins.MainData.NameData.Save(nickname);
-            Main.Ins.MainData.RankData.SaveInfo(nickname);
+            await Main.Ins.MainData.UserData.SaveName(nickname);
+            await Main.Ins.MainData.NameData.Save(nickname);
             
             _nicknameEntered.TrySetResult(true);
             Destroy(this.gameObject);

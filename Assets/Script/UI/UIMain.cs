@@ -24,6 +24,9 @@ public class UIMain : MonoBehaviour
     public UILobby UiLobby {get; private set;}
     public UIColorMatch UIColorMatch { get; private set; } 
 
+    public bool LoadComplete { get; private set; }
+    public IObservable<Unit> OnLoadComplete => _onLoadComplete;
+    private Subject<Unit> _onLoadComplete = new Subject<Unit>();
     private void Awake()
     {
         UiPopup = FindObjectOfType<UIPopup>();
@@ -39,6 +42,12 @@ public class UIMain : MonoBehaviour
         {
             UiPopup.Initialize();
             UiLobby.Initialize();   
+            
+            LoadComplete = true;
+            _onLoadComplete.OnNext(Unit.Default);
+            _onLoadComplete.OnCompleted();
+            _onLoadComplete.Dispose();
+            _onLoadComplete = null;
         }
         else
         {
@@ -46,7 +55,14 @@ public class UIMain : MonoBehaviour
             {
                 UiPopup.Initialize();
                 UiLobby.Initialize();   
+                
+                LoadComplete = true;
+                _onLoadComplete.OnNext(Unit.Default);
+                _onLoadComplete.OnCompleted();
+                _onLoadComplete.Dispose();
+                _onLoadComplete = null;
             }).AddTo(this);
         }
+        
     }
 }

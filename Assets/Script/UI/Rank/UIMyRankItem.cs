@@ -18,7 +18,7 @@ public class UIMyRankItem : MonoBehaviour
         scoreText.text = Main.Ins.MainData.UserData.UserInfo.Score.ToString();
         var rank = Main.Ins.MainData.RankData.GetRankNumber();
         rankText.text = (rank+1).ToString();
-        var tier = Main.Ins.MainData.RankData.GetTier();
+        var tier = Main.Ins.MainData.RankData.GetTier(Main.Ins.MainData.UserData.UserInfo.Score);
         tierImage.sprite = Main.Ins.MainData.RankData.tierSprite[(int)tier];
     }
 }

@@ -102,9 +102,32 @@ public class ColorMatchContent : GameContent
     {      
         if (Score > MaxScore)
         {
-            MaxScore = Score;
-            Main.Ins.MainData.UserData.SaveScore(MaxScore);
-            Main.Ins.MainData.RankData.SaveMaxScore(MaxScore);
+            if (MaxScore == 0)
+            {
+                MaxScore = Score;
+                Main.Ins.MainData.UserData.SaveScore(MaxScore);
+                Main.Ins.MainData.RankData.SaveAll();
+            }
+            else
+            {
+                MaxScore = Score;
+                Main.Ins.MainData.UserData.SaveScore(MaxScore);
+                Main.Ins.MainData.RankData.SaveMaxScore(MaxScore);
+            }
+            
+            var prevTier = Enum.Parse<Tier>(Main.Ins.MainData.UserData.UserInfo.Tier);
+            var changeTier = Main.Ins.MainData.RankData.GetTier(MaxScore);
+            if (prevTier != changeTier)
+            {
+                Main.Ins.MainData.UserData.SaveTier(changeTier);
+                Main.Ins.MainData.RankData.Remove(prevTier);
+                Main.Ins.MainData.RankData.Add(changeTier);
+                
+                var tierPopup = UIMain.Ins.UiPopup.GetPopup<UIChangeTierPopup>(PopupType.ChangeTier);
+                tierPopup.Set(prevTier, changeTier,null);
+                tierPopup.gameObject.SetActive(true);
+                
+            }
         }
         foreach (var bar in _useCubeQueue)
         {
@@ -178,8 +201,49 @@ public class ColorMatchContent : GameContent
         }
     }
     private IEnumerator FailCoroutine()
-    {
+    { 
         yield return new WaitForSeconds(2f);
+        if (Score > MaxScore)
+        {
+            if (MaxScore == 0)
+            {
+                MaxScore = Score;
+                Main.Ins.MainData.UserData.SaveScore(MaxScore);
+                Main.Ins.MainData.RankData.SaveAll();
+            }
+            else
+            {
+                MaxScore = Score;
+                Main.Ins.MainData.UserData.SaveScore(MaxScore);
+                Main.Ins.MainData.RankData.SaveMaxScore(MaxScore);
+            }
+
+            var prevTier = Enum.Parse<Tier>(Main.Ins.MainData.UserData.UserInfo.Tier);
+            var changeTier = Main.Ins.MainData.RankData.GetTier(MaxScore);
+            
+            if (prevTier != changeTier)
+            {
+                Main.Ins.MainData.UserData.SaveTier(changeTier);
+                Main.Ins.MainData.RankData.Remove(prevTier);
+                Main.Ins.MainData.RankData.Add(changeTier);
+                
+                var tierPopup = UIMain.Ins.UiPopup.GetPopup<UIChangeTierPopup>(PopupType.ChangeTier);
+                tierPopup.Set(prevTier, changeTier, OpenRetry);
+                tierPopup.gameObject.SetActive(true);
+            }
+            else
+            {
+                OpenRetry();
+            }
+        }
+        else
+        {
+            OpenRetry();
+        }
+    }
+
+    private void OpenRetry()
+    {
         var popup = UIMain.Ins.UiPopup.GetPopup<UIColorMatchRetryPopup>(PopupType.ColorMatchRetry);
         popup.Set(Score, MaxScore);
         Main.Ins.MainTime.Pause();
@@ -187,4 +251,5 @@ public class ColorMatchContent : GameContent
         popup.AddExitEvent(Main.Ins.MainTime.Resume);
         popup.gameObject.SetActive(true);
     }
+
 }

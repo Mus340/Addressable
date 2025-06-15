@@ -30,10 +30,10 @@ public class NameData : MonoBehaviour
         }
     }
 
-    public void Save(string userName)
+    public async Task Save(string userName)
     {
-        _reference.Child(userName).SetValueAsync(true)
-            .ContinueWithOnMainThread(task =>
+        await _reference.Child(userName).SetValueAsync(true)
+            .ContinueWith(task =>
             {
                 if (!task.IsCompletedSuccessfully)
                 {

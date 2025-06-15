@@ -17,7 +17,6 @@ public class UIRankingPopup : UIPopupPanel
     public UIMyRankItem MyRankItem;
     public RankingView[] RankingViews;
     public DynamicVScrollView ScrollView;
-    public RectTransform ScrollViewRect;
     public Tier? SelectTier { get; private set; }
 
     private void Awake()
@@ -56,7 +55,7 @@ public class UIRankingPopup : UIPopupPanel
         }
         else
         {
-            SelectTier = Main.Ins.MainData.RankData.GetTier();
+            SelectTier = Main.Ins.MainData.RankData.GetTier(Main.Ins.MainData.UserData.UserInfo.Score);
             OpenView(SelectTier.Value);
         }
         MyRankItem.Set();

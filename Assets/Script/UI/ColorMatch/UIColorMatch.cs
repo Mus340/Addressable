@@ -29,9 +29,9 @@ public class UIColorMatch : UIContentPanel
     
     protected override void Enter()
     {
-        var tier= Main.Ins.MainData.RankData.GetTier();
-        _rankList = Main.Ins.MainData.RankData.GetRankList(tier);
         _content = Main.Ins.MainGame.GetGame<ColorMatchContent>();
+        var tier = Enum.Parse<Tier>(Main.Ins.MainData.UserData.UserInfo.Tier);
+        _rankList = Main.Ins.MainData.RankData.GetRankList(tier);
         _prevScore = _content.Score;
         scoreText.text = $"{_content.Score}";
 
@@ -55,19 +55,20 @@ public class UIColorMatch : UIContentPanel
 
         SetXPositionSmooth(curScorePos, curScore, max);
         SetXPositionSmooth(maxScorePos.gameObject, maxScore, max);
-        SetXPositionSmooth(bronzePos.gameObject, _rankList[0].MaxScore, max);
+        SetXPositionSmooth(goldPos.gameObject, _rankList[0].MaxScore, max);
         SetXPositionSmooth(silverPos.gameObject, _rankList[1].MaxScore, max);
-        SetXPositionSmooth(goldPos.gameObject, _rankList[2].MaxScore, max);
+        SetXPositionSmooth(bronzePos.gameObject, _rankList[2].MaxScore, max);
     }
 
     private void SetXPositionSmooth(GameObject obj, float score, float maxScore)
     {
-        var panelWidth = ((RectTransform)posPanel.transform).rect.width;
+        var panelWidth = ((RectTransform) posPanel.transform).rect.width;
         var normalized = Mathf.Clamp01(score / maxScore);
         var rt = obj.GetComponent<RectTransform>();
         rt.DOAnchorPos(new Vector2(normalized * panelWidth, 0), 0.3f)
             .SetEase(Ease.OutQuad);
     }
+
     private void ShowScoreEffect(int curScore, int prevScore)
     {
         _scoreTween?.Kill();

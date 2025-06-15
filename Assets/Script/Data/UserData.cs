@@ -31,7 +31,7 @@ public class UserData : MonoBehaviour
         public string Name = "EMPTY";
         public int PlayCount;
         public int Score;
-        public string Tier;
+        public string Tier = global::Tier.Brown.ToString();
         public int Skin;
         public string FirstTime;
         public string LastTime;
@@ -52,7 +52,6 @@ public class UserData : MonoBehaviour
         {
             UserInfo.FirstTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             UserInfo.LastTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-            await SaveAsync(UserInfo.ToDictionary());
         }
         else
         {
@@ -68,6 +67,23 @@ public class UserData : MonoBehaviour
         if (snapshot.Exists)
         {
             UserInfo = JsonUtility.FromJson<User>(snapshot.GetRawJsonValue());
+        }
+    }
+    
+    public async Task<User> LoadUserData(string uid)
+    {
+        DataSnapshot snapshot = await _reference.Child(uid).GetValueAsync();
+
+        if (snapshot.Exists)
+        {
+            var json = snapshot.GetRawJsonValue();
+            User user = JsonUtility.FromJson<User>(json);
+            return user;
+        }
+        else
+        {
+            Debug.LogWarning($"User data not found for UID: {uid}");
+            return null;
         }
     }
 
@@ -101,10 +117,16 @@ public class UserData : MonoBehaviour
         UserInfo.LastTime = nowTime;
         Save(new Dictionary<string, object> {{nameof(User.LastTime), UserInfo.LastTime}});
     }
-    public void SaveName(string nameStr)
+    public async Task SaveName(string nameStr)
     {
         UserInfo.Name = nameStr;
-        Save(new Dictionary<string, object> {{nameof(User.Name), UserInfo.Name}});
+        await SaveAsync(UserInfo.ToDictionary());
+    }
+
+    public void SaveTier(Tier tier)
+    {
+        UserInfo.Tier = tier.ToString();
+        Save(new Dictionary<string, object> {{nameof(User.Tier), UserInfo.Tier}});
     }
 
     public void SavePlayCount(int count)

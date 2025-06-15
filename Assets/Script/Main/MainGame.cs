@@ -18,17 +18,32 @@ public class MainGame : MonoBehaviour
     {           
         if (Main.Ins.LoadComplete)
         {
-            LoadGame();
+            Subscribe();
         }
         else
         {
             Main.Ins.OnLoadComplete.Subscribe((_) =>
             {
-                LoadGame();
+                Subscribe();
             }).AddTo(this);
         }
     }
 
+    private void Subscribe()
+    {
+        LoadGame();
+        if (UIMain.Ins.LoadComplete)
+        {
+            CheckChangeTier();
+        }
+        else
+        {
+            UIMain.Ins.OnLoadComplete.Subscribe((_) =>
+            {
+                CheckChangeTier();
+            }).AddTo(this);
+        }
+    }
     private void LoadGame()
     {
         var prefab = Resources.Load<GameContent>($"{ResourcesPath.GamePath}{"ColorMatch"}");
@@ -36,7 +51,22 @@ public class MainGame : MonoBehaviour
         _gameContent.Initialized();
         _gameContent.gameObject.SetActive(false);
     }
-    
+
+    private void CheckChangeTier()
+    {
+        var prevTier = Enum.Parse<Tier>(Main.Ins.MainData.UserData.UserInfo.Tier);
+        var changeTier = Main.Ins.MainData.RankData.GetTier(Main.Ins.MainData.UserData.UserInfo.Score);
+        if (prevTier != changeTier)
+        {
+            Main.Ins.MainData.RankData.Remove(prevTier);
+            Main.Ins.MainData.RankData.Add(changeTier);
+            
+            Main.Ins.MainData.UserData.SaveTier(changeTier);
+            var tierPopup = UIMain.Ins.UiPopup.GetPopup<UIChangeTierPopup>(PopupType.ChangeTier);
+            tierPopup.Set(prevTier, changeTier, null);
+            tierPopup.gameObject.SetActive(true);
+        }
+    }
     public void EnterGame()
     {
         UIMain.Ins.UiLobby.gameObject.SetActive(false);

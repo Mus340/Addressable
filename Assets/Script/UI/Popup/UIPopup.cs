@@ -8,7 +8,8 @@ public enum PopupType
     Setting,
     Ranking,
     ReturnToLobby,
-    ColorMatchRetry
+    ColorMatchRetry,
+    ChangeTier,
 }
 public class UIPopup : MonoBehaviour
 {
