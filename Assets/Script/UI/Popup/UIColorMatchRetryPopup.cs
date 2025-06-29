@@ -23,8 +23,8 @@ public class UIColorMatchRetryPopup : UIPopupPanel
         retryButton.onClick.RemoveAllListeners();
         retryButton.onClick.AddListener(Retry);
         
-        curScoreText.text = $"CurScore: {curScore}";
-        maxScoreText.text = $"MaxScore: {maxScore}";
+        curScoreText.text = $"{curScore}";
+        maxScoreText.text = $"{maxScore}";
     }
 
     public void AddExitEvent(Action onExit)

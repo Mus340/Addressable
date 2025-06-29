@@ -4,6 +4,9 @@ using UnityEngine;
 using Firebase;
 using Firebase.Auth;
 using Firebase.Extensions;
+using GoogleMobileAds.Api;
+using GoogleMobileAds.Ump.Api;
+using GooglePlayGames.BasicApi;
 using UniRx;
 
 #if UNITY_IOS

@@ -82,7 +82,10 @@ public class MainGame : MonoBehaviour
         _onEnd.OnNext(Unit.Default);
         _gameContent.Begin();
         _onBegin.OnNext(Unit.Default);
-        //AdsManager.Ins.TryShowAdOnGameOver();
+        if ((Main.Ins.MainData.UserData.UserInfo.PlayCount+1) % 4 == 0)
+        {
+            AdsManager.Ins.TryShowAdOnGameOver();
+        }
     }
 
     public void ReturnToLobby()
@@ -92,7 +95,10 @@ public class MainGame : MonoBehaviour
         _gameContent.End();
         _onEnd.OnNext(Unit.Default);
         _gameContent.gameObject.SetActive(false);
-        //AdsManager.Ins.TryShowAdOnGameOver();
+        if ((Main.Ins.MainData.UserData.UserInfo.PlayCount+1) % 4 == 0)
+        {
+            AdsManager.Ins.TryShowAdOnGameOver();
+        }
     }
 
     public T GetGame<T>() where T : GameContent

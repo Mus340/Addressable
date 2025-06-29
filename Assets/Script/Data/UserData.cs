@@ -6,24 +6,6 @@ using Firebase.Database;
 using Firebase.Extensions;
 using UnityEngine;
 
-
-public static class EnumHelper
-{
-    public static string ToStringValue<T>(T enumVal) where T : Enum
-    {
-        return enumVal.ToString();
-    }
-    public static T ParseEnum<T>(string value, T defaultValue = default) where T : struct, Enum
-    {
-        if (Enum.TryParse(value, out T result))
-        {
-            return result;
-        }
-        return defaultValue;
-    }
-}
-
-
 public class UserData : MonoBehaviour
 {
     public class User : ApplyToDictionary<User>

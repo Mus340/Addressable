@@ -8,8 +8,8 @@ using UnityEngine.UI;
 public class UISettingPopup : UIPopupPanel
 {
     public Button languageButton;
-    
     public Button muteButton;
+    public Button privacyPolicyButton;
     public Image muteImage;
     public Sprite[] muteSprites;
     public Sprite[] buttonSprites;
@@ -20,6 +20,8 @@ public class UISettingPopup : UIPopupPanel
         muteButton.onClick.RemoveAllListeners();
         languageButton.onClick.AddListener(Language);
         muteButton.onClick.AddListener(Mute);
+        privacyPolicyButton.onClick.RemoveAllListeners();
+        privacyPolicyButton.onClick.AddListener(PrivacyPolicy);
     }
 
     public void Open()
@@ -42,5 +44,10 @@ public class UISettingPopup : UIPopupPanel
         PlayerPrefs.Save();
         muteImage.sprite = muteSprites[state];
         muteButton.image.sprite = buttonSprites[state];
+    }
+
+    private void PrivacyPolicy()
+    {
+        Application.OpenURL("https://www.notion.so/Privacy-Policy-221fbfd8916b809d9d48cf4a9ea98f8f?source=copy_link");
     }
 }

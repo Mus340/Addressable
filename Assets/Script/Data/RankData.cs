@@ -123,6 +123,10 @@ public class RankData : MonoBehaviour
             if (score > highest)
             {
                 matchedTier = tier+1;
+                if (matchedTier > Tier.Purple)
+                {
+                    matchedTier = Tier.Purple;
+                }
                 break;
             }
         }
@@ -163,6 +167,16 @@ public class RankData : MonoBehaviour
             rankList.Remove(existing);
         }
         rankList.Add(newRank);
+        rankList.Sort((a, b) => b.MaxScore.CompareTo(a.MaxScore));
+    }
+
+    public void Refresh(Tier tier)
+    {
+        if (!_rankDictionary.ContainsKey(tier))
+        {
+            _rankDictionary[tier] = new List<Rank>();
+        }
+        var rankList = _rankDictionary[tier];
         rankList.Sort((a, b) => b.MaxScore.CompareTo(a.MaxScore));
     }
     

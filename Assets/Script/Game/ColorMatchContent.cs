@@ -126,7 +126,10 @@ public class ColorMatchContent : GameContent
                 var tierPopup = UIMain.Ins.UiPopup.GetPopup<UIChangeTierPopup>(PopupType.ChangeTier);
                 tierPopup.Set(prevTier, changeTier,null);
                 tierPopup.gameObject.SetActive(true);
-                
+            }
+            else
+            {
+                Main.Ins.MainData.RankData.Refresh(prevTier);
             }
         }
         foreach (var bar in _useCubeQueue)
@@ -233,7 +236,15 @@ public class ColorMatchContent : GameContent
             }
             else
             {
+                Main.Ins.MainData.RankData.Refresh(prevTier);
                 OpenRetry();
+                //var tier =  Enum.Parse<Tier>(Main.Ins.MainData.UserData.UserInfo.Tier);
+                //var prevRank = Main.Ins.MainData.RankData.GetRankNumber();
+                //Main.Ins.MainData.RankData.Refresh(tier);
+                //var curRank = Main.Ins.MainData.RankData.GetRankNumber();
+                //var tierPopup = UIMain.Ins.UiPopup.GetPopup<UIChangeRankPopup>(PopupType.ChangeRank);
+                //tierPopup.Open(tier,prevRank, curRank, OpenRetry);
+                //tierPopup.gameObject.SetActive(true);
             }
         }
         else
