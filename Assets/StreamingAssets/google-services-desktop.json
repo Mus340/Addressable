@@ -34,6 +34,35 @@
           ]
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:965861274727:android:9c69f407673f3b002dd0c2",
+        "android_client_info": {
+          "package_name": "com.MusGames.ColorStepRunner"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "965861274727-duhb0qajgcnivg34k5nj74fq24c2uat5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-ZTB4ue2-bDagliEo0soBt0V9-AdOjqc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "965861274727-duhb0qajgcnivg34k5nj74fq24c2uat5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"
