@@ -15,7 +15,7 @@ public class ColorCubeItem : MonoBehaviour
     public void OnEnable()
     {
         _disposable = new CompositeDisposable();
-        var content = Main.Ins.MainGame.GetGame<ColorMatchContent>();
+        var content = Main.Ins.MainGame.InGame;
         content.OnFail.Subscribe((_) =>
         {
             if (_level == content.Level+1 && _index == content.AnswerList[_level])

@@ -12,8 +12,13 @@ public class MainGame : MonoBehaviour
     public IObservable<Unit> OnEnd => _onEnd;
     private ISubject<Unit> _onEnd = new Subject<Unit>();
 
-    private GameContent _gameContent;
-    
+    private InGame _inGame;
+
+    public InGame InGame
+    {
+        get => _inGame;
+        private set => _inGame = value;
+    }
     private void Awake()
     {           
         if (Main.Ins.LoadComplete)
@@ -46,10 +51,10 @@ public class MainGame : MonoBehaviour
     }
     private void LoadGame()
     {
-        var prefab = Resources.Load<GameContent>($"{ResourcesPath.GamePath}{"ColorMatch"}");
-        _gameContent = Instantiate(prefab);
-        _gameContent.Initialized();
-        _gameContent.gameObject.SetActive(false);
+        var prefab = Resources.Load<InGame>($"{ResourcesPath.GamePath}{"ColorMatch"}");
+        InGame = Instantiate(prefab);
+        InGame.Initialized();
+        InGame.gameObject.SetActive(false);
     }
 
     private void CheckChangeTier()
@@ -71,16 +76,16 @@ public class MainGame : MonoBehaviour
     {
         UIMain.Ins.UiLobby.gameObject.SetActive(false);
         UIMain.Ins.UIColorMatch.gameObject.SetActive(true);
-        _gameContent.Begin();
+        InGame.Begin();
         _onBegin.OnNext(Unit.Default);
-        _gameContent.gameObject.SetActive(true);
+        InGame.gameObject.SetActive(true);
     }
 
     public void RetryGame()
     {
-        _gameContent.End();
+        InGame.End();
         _onEnd.OnNext(Unit.Default);
-        _gameContent.Begin();
+        InGame.Begin();
         _onBegin.OnNext(Unit.Default);
         if ((Main.Ins.MainData.UserData.UserInfo.PlayCount+1) % 4 == 0)
         {
@@ -92,17 +97,12 @@ public class MainGame : MonoBehaviour
     {
         UIMain.Ins.UiLobby.gameObject.SetActive(true);
         UIMain.Ins.UIColorMatch.gameObject.SetActive(false);
-        _gameContent.End();
+        InGame.End();
         _onEnd.OnNext(Unit.Default);
-        _gameContent.gameObject.SetActive(false);
+        InGame.gameObject.SetActive(false);
         if ((Main.Ins.MainData.UserData.UserInfo.PlayCount+1) % 4 == 0)
         {
             AdsManager.Ins.TryShowAdOnGameOver();
         }
-    }
-
-    public T GetGame<T>() where T : GameContent
-    {
-        return _gameContent as T;
     }
 }

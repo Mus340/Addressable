@@ -18,7 +18,7 @@ public class Player : MonoBehaviour
     public float moveDuration;
     public float lerp;
 
-    private ColorMatchContent _content;
+    private InGame _inGame;
     private Vector3Int _pos;
 
     public Vector3Int GetPos() => _pos;
@@ -27,7 +27,7 @@ public class Player : MonoBehaviour
     public void Initialized(Vector3 pos)
     {
         transform.position = new Vector3(pos.x, pos.y+(transform.localScale.y/2.0f), pos.z);
-        _content = Main.Ins.MainGame.GetGame<ColorMatchContent>();
+        _inGame = Main.Ins.MainGame.InGame;
         
         playerController.OnMove.Subscribe((move) =>
         {
@@ -45,20 +45,20 @@ public class Player : MonoBehaviour
             }
             else if (move == PlayerMove.Forward)
             {
-                _content.Select(_pos.x);
+                _inGame.Select(_pos.x);
             }
         }).AddTo(this);
         
-        _content.OnNext.Subscribe((level) =>
+        _inGame.OnNext.Subscribe((level) =>
         {
             _pos.y = level;
             _pos.z = level;
             Move(PlayerMove.Forward,new Vector3(_pos.x, _pos.y, _pos.z));
         }).AddTo(this);
 
-        _content.SpawnEnemy.Subscribe((_) =>
+        _inGame.SpawnEnemy.Subscribe((_) =>
         {
-            _content.Enemy.OnCatch.Subscribe((_) =>
+            _inGame.Enemy.OnCatch.Subscribe((_) =>
             {
                 _sequence?.Kill();
             }).AddTo(this);
@@ -67,24 +67,24 @@ public class Player : MonoBehaviour
     
     private void Check(PlayerMove move)
     {
-        if (!_content.IsEndGame)
+        if (!_inGame.IsEndGame)
         {
             if (move == PlayerMove.Left && (_pos.x-1) >= 0)
             {
                 _pos.x--;
                 Move(move, new Vector3(_pos.x, _pos.y, _pos.z));
-                if (_content.Level > 0)
+                if (_inGame.Level > 0)
                 {
-                    _content.AddScore(1);
+                    _inGame.AddScore(1);
                 }
             }
-            else if (move == PlayerMove.Right && (_pos.x + 1) < _content.LevelData.GetValue(_pos.y).cube_count)
+            else if (move == PlayerMove.Right && (_pos.x + 1) < _inGame.LevelData.GetValue(_pos.y).cube_count)
             {
                 _pos.x++;
                 Move(move, new Vector3(_pos.x, _pos.y, _pos.z));
-                if (_content.Level > 0)
+                if (_inGame.Level > 0)
                 {
-                    _content.AddScore(1);
+                    _inGame.AddScore(1);
                 }
             }
         }

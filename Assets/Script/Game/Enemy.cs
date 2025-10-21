@@ -22,7 +22,6 @@ public class Enemy : MonoBehaviour
 
     private DataTable<EnemyData> _enemyData = new();
     
-    private ColorMatchContent _content;
     private Player _player;
     private Tween _moveTween;
     private EnemyState _state;
@@ -30,8 +29,7 @@ public class Enemy : MonoBehaviour
     public void Initialize()
     {
         _enemyData.Load();
-        _content = Main.Ins.MainGame.GetGame<ColorMatchContent>();
-        _player = _content.Player;
+        _player = Main.Ins.MainGame.InGame.Player;
         Pos = Vector3Int.zero;
         _state = EnemyState.Climb;
         StartCoroutine(SpawnEffect());
@@ -45,10 +43,10 @@ public class Enemy : MonoBehaviour
     }
     private void Move()
     {
-        if (!_content.IsEndGame)
+        if (!Main.Ins.MainGame.InGame.IsEndGame)
         {
             _state = EnemyState.Climb;
-            if (Pos.x == _content.AnswerList[Pos.y+1])
+            if (Pos.x == Main.Ins.MainGame.InGame.AnswerList[Pos.y+1])
             {
                 MoveY();
             }
@@ -61,10 +59,10 @@ public class Enemy : MonoBehaviour
 
     private void MoveX()
     {
-        var targetX = _content.AnswerList[Pos.y+1];
+        var targetX = Main.Ins.MainGame.InGame.AnswerList[Pos.y+1];
         var targetPos = new Vector3Int(targetX, Pos.y, Pos.z);
         var blockCount = Mathf.Abs(targetPos.x - Pos.x);
-        float totalDuration = blockCount / _enemyData.GetValue(_content.Level).speed;
+        float totalDuration = blockCount / _enemyData.GetValue(Main.Ins.MainGame.InGame.Level).speed;
         LookAtDirection(targetPos);
         _moveTween?.Kill();
         _moveTween = transform.DOMove(targetPos, totalDuration).SetEase(Ease.InQuad).OnComplete(() =>
@@ -84,7 +82,7 @@ public class Enemy : MonoBehaviour
     private void MoveY()
     {
         var targetPos = new Vector3Int(Pos.x, Pos.y+1, Pos.z+1);
-        var speed = _enemyData.GetValue(_content.Level).speed;
+        var speed = _enemyData.GetValue(Main.Ins.MainGame.InGame.Level).speed;
         var duration = 1f / speed;
         Vector3 midPos = Vector3.Lerp(Pos, targetPos, 1.0f);
         midPos.y += 0.2f;
@@ -110,14 +108,14 @@ public class Enemy : MonoBehaviour
     
     private void Catch(Vector3Int target)
     {
-        if (_content.IsEndGame)
+        if (Main.Ins.MainGame.InGame.IsEndGame)
         {
             return;
         }
         _moveTween?.Kill();
         _state = EnemyState.Catch;
 
-        float speed = _enemyData.GetValue(_content.Level).speed;
+        float speed = _enemyData.GetValue(Main.Ins.MainGame.InGame.Level).speed;
         var distance = Mathf.Abs(target.x - Pos.x);
         float duration = distance / speed;
         LookAtDirection(target);

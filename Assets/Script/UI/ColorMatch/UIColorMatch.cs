@@ -21,35 +21,32 @@ public class UIColorMatch : UIContentPanel
     public GameObject silverPos;
     public GameObject goldPos;
 
-    private ColorMatchContent _content;
-
     private List<RankData.Rank> _rankList;
     
     protected override void Initialize() { }
     
     protected override void Enter()
     {
-        _content = Main.Ins.MainGame.GetGame<ColorMatchContent>();
         var tier = Enum.Parse<Tier>(Main.Ins.MainData.UserData.UserInfo.Tier);
         _rankList = Main.Ins.MainData.RankData.GetRankList(tier);
-        _prevScore = _content.Score;
-        scoreText.text = $"{_content.Score}";
+        _prevScore = Main.Ins.MainGame.InGame.Score;
+        scoreText.text = $"{Main.Ins.MainGame.InGame.Score}";
 
-        maxScorePos.gameObject.SetActive(_content.MaxScore > 0);
+        maxScorePos.gameObject.SetActive(Main.Ins.MainGame.InGame.MaxScore > 0);
         SetPos();
         
-        _content.OnAddScore.Subscribe((_) =>
+        Main.Ins.MainGame.InGame.OnAddScore.Subscribe((_) =>
         {          
             SetPos();
-            ShowScoreEffect(_content.Score, _prevScore);
-            _prevScore = _content.Score;
+            ShowScoreEffect(Main.Ins.MainGame.InGame.Score, _prevScore);
+            _prevScore = Main.Ins.MainGame.InGame.Score;
         }).AddTo(Disposable);
     }
 
     private void SetPos()
     {
-        var curScore = _content.Score;
-        var maxScore = _content.MaxScore;
+        var curScore = Main.Ins.MainGame.InGame.Score;
+        var maxScore = Main.Ins.MainGame.InGame.MaxScore;
         
         var max = Mathf.Max(curScore, maxScore, _rankList[0].MaxScore, 1f);
 

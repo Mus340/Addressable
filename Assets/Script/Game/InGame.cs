@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
-public class ColorMatchContent : GameContent
+public class InGame : MonoBehaviour
 {
     public Player Player { get; private set; }
     public Enemy Enemy  { get; private set; }
@@ -42,14 +42,14 @@ public class ColorMatchContent : GameContent
     
     private const int CUBE_RANGE = 30;
     
-    public override void Initialized()
+    public void Initialized()
     {
         _useCubeQueue = new();
         LevelData.Load();
         _cubeBarPool = new ObjectPool<ColorCubeBar>(cubeBar, CUBE_RANGE, barParent);
     }
     
-    public override void Begin()
+    public void Begin()
     {
         _useCubeQueue = new Queue<ColorCubeBar>();
         _disposable = new CompositeDisposable();
@@ -98,7 +98,7 @@ public class ColorMatchContent : GameContent
         
     }
     
-    public override void End()
+    public void End()
     {      
         if (Score > MaxScore)
         {
