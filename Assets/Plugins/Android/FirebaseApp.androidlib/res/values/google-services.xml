@@ -6,6 +6,6 @@
   <string name="project_id" translatable="false">challengerush-a34bd</string>
   <string name="google_api_key" translatable="false">AIzaSyD-ZTB4ue2-bDagliEo0soBt0V9-AdOjqc</string>
   <string name="google_crash_reporting_api_key" translatable="false">AIzaSyD-ZTB4ue2-bDagliEo0soBt0V9-AdOjqc</string>
-  <string name="google_app_id" translatable="false">1:965861274727:android:f4080de0a465111d2dd0c2</string>
+  <string name="google_app_id" translatable="false">1:965861274727:android:9c69f407673f3b002dd0c2</string>
   <string name="default_web_client_id" translatable="false">965861274727-duhb0qajgcnivg34k5nj74fq24c2uat5.apps.googleusercontent.com</string>
 </resources>
