@@ -33,6 +33,12 @@ public class Main : MonoBehaviour
     public Transform nickNameParent;
     private void Awake()
     {
+#if UNITY_IOS || UNITY_ANDROID
+        Application.targetFrameRate = 60; 
+#else
+        QualitySettings.vSyncCount = 1;   
+#endif
+        
         MainGame = GetComponent<MainGame>();
         MainTime = GetComponent<MainTime>();
         MainData = GetComponent<MainData>();
