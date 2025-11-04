@@ -70,7 +70,7 @@ public class MainGame : MonoBehaviour
         _onEnd.OnNext(Unit.Default);
         InGame.Begin();
         _onBegin.OnNext(Unit.Default);
-        if ((Main.Ins.MainData.UserData.UserInfo.PlayCount+1) % 4 == 0)
+        if ((Main.Ins.MainData.UserData.UserInfo.PlayCount+1) % 3 == 0)
         {
             AdsManager.Ins.TryShowAdOnGameOver();
         }
@@ -83,7 +83,7 @@ public class MainGame : MonoBehaviour
         InGame.End();
         _onEnd.OnNext(Unit.Default);
         InGame.gameObject.SetActive(false);
-        if ((Main.Ins.MainData.UserData.UserInfo.PlayCount+1) % 4 == 0)
+        if ((Main.Ins.MainData.UserData.UserInfo.PlayCount+1) % 3 == 0)
         {
             AdsManager.Ins.TryShowAdOnGameOver();
         }
