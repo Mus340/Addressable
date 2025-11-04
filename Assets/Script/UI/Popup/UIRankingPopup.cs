@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using Mosframe;
 using UniRx;
 using UnityEngine;
@@ -8,17 +9,10 @@ using UnityEngine.UI;
 
 public class UIRankingPopup : UIPopupPanel
 {
-    [Serializable]
-    public class RankingView
-    {
-        public Button Button;
-        public Text Text;
-    }
     public UIMyRankItem MyRankItem;
-    public RankingView[] RankingViews;
     public DynamicVScrollView ScrollView;
-    public Tier? SelectTier { get; private set; }
 
+    private bool _isMoveScroll;
     private void Awake()
     {
         if (Main.Ins.LoadComplete)
@@ -36,37 +30,70 @@ public class UIRankingPopup : UIPopupPanel
 
     private void Initialize()
     {
-        for (int i = 0; i < RankingViews.Length; i++)
+        _isMoveScroll = true;
+        ScrollView.totalItemCount = Main.Ins.MainData.RankData.GetRankList().Count;
+        Main.Ins.MainData.RankData.OnUpdateMaxScore.Subscribe((_) =>
         {
-            RankingViews[i].Button.onClick.RemoveAllListeners();
-            var tier = (Tier)i;
-            RankingViews[i].Button.onClick.AddListener(()=>
-            {
-                OpenView(tier);
-            });
-        }
+            Debug.Log("New Max Score");
+            _isMoveScroll = true;
+        }).AddTo(this);
     }
 
     public void Open()
     {
-        if (SelectTier.HasValue)
-        {
-            OpenView(SelectTier.Value);
-        }
-        else
-        {
-            SelectTier = Main.Ins.MainData.RankData.GetTier(Main.Ins.MainData.UserData.UserInfo.Score);
-            OpenView(SelectTier.Value);
-        }
+        SetScroll();
         MyRankItem.Set();
     }
 
-    private void OpenView(Tier tier)
+    private void SetScroll()
     {
-        RankingViews[(int)SelectTier].Text.color = Color.white;
-        SelectTier = tier;
-        RankingViews[(int)SelectTier].Text.color = Color.yellow;
-        ScrollView.totalItemCount = Main.Ins.MainData.RankData.GetRankList(tier).Count;
-        ScrollView.refresh();
+        if (_isMoveScroll)
+        {
+            StartCoroutine(Move(Main.Ins.MainData.RankData.MyRankIndex));
+        }
     }
+
+
+    private IEnumerator Move(int index)
+    {
+        yield return null;
+        ScrollView.refresh();
+        StartCoroutine(MoveScrollItem(index));
+        _isMoveScroll = false;                                                                                                             
+    }
+
+    private void MoveScrollImmediately(int index)
+    {
+        var scrollRect = ScrollView.GetComponent<ScrollRect>();
+        var itemHeight = ScrollView.itemPrototype.rect.height;
+        var viewportHeight = scrollRect.viewport.rect.height;
+
+        var targetY = itemHeight * (index + 0.5f) - viewportHeight / 2f;
+
+        var minY = 0f;
+        var maxY = ScrollView.totalItemCount * itemHeight - viewportHeight;
+        targetY = Mathf.Clamp(targetY, minY, maxY);
+        scrollRect.StopMovement();
+        scrollRect.content.transform.localPosition = new Vector3(0f, targetY+500.0f, 0f);
+    }
+    
+    private IEnumerator MoveScrollItem(int index)
+    {
+        yield return null;
+        var scrollRect = ScrollView.GetComponent<ScrollRect>();
+        var itemHeight = ScrollView.itemPrototype.rect.height;
+        var viewportHeight = scrollRect.viewport.rect.height;
+
+        var targetY = itemHeight * (index + 0.5f) - viewportHeight / 2f;
+
+        var minY = 0f;
+        var maxY = ScrollView.totalItemCount * itemHeight - viewportHeight;
+        targetY = Mathf.Clamp(targetY, minY, maxY);
+        scrollRect.StopMovement();
+        scrollRect.content.transform.DOLocalMove(new Vector3(0f, targetY+500.0f, 0f),1f).SetEase( Ease.OutExpo).OnComplete(
+            () =>
+            {
+            });
+    }
+
 }

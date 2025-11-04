@@ -13,7 +13,6 @@ public class UserData : MonoBehaviour
         public string Name = "EMPTY";
         public int PlayCount;
         public int Score;
-        public string Tier = global::Tier.Brown.ToString();
         public int Skin;
         public string FirstTime;
         public string LastTime;
@@ -103,12 +102,6 @@ public class UserData : MonoBehaviour
     {
         UserInfo.Name = nameStr;
         await SaveAsync(UserInfo.ToDictionary());
-    }
-
-    public void SaveTier(Tier tier)
-    {
-        UserInfo.Tier = tier.ToString();
-        Save(new Dictionary<string, object> {{nameof(User.Tier), UserInfo.Tier}});
     }
 
     public void SavePlayCount(int count)

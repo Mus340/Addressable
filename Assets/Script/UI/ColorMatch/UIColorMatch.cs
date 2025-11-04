@@ -27,8 +27,7 @@ public class UIColorMatch : UIContentPanel
     
     protected override void Enter()
     {
-        var tier = Enum.Parse<Tier>(Main.Ins.MainData.UserData.UserInfo.Tier);
-        _rankList = Main.Ins.MainData.RankData.GetRankList(tier);
+        _rankList = Main.Ins.MainData.RankData.GetRankList();
         _prevScore = Main.Ins.MainGame.InGame.Score;
         scoreText.text = $"{Main.Ins.MainGame.InGame.Score}";
 

@@ -11,14 +11,7 @@ public class UIChangeRankPopup : UIPopupPanel
     public DynamicVScrollView scrollView;
 
     private Action _onClose;
-    public void Open(Tier tier, int prev, int current, Action onclose)
-    {
-        _onClose = onclose;
-        scrollView.totalItemCount = Main.Ins.MainData.RankData.GetRankList(tier).Count;
-        gameObject.SetActive(true);
-        StartCoroutine(Move(prev, current));
-    }
-
+    
     private IEnumerator Move(int start, int end)
     {
         yield return null;

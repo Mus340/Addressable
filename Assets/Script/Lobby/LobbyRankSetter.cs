@@ -57,7 +57,7 @@ public class LobbyRankSetter : MonoBehaviour
     
     private async void Set()
     {
-        var rankerList = Main.Ins.MainData.RankData.GetRankList(Tier.Purple);
+        var rankerList = Main.Ins.MainData.RankData.GetRankList();
 
         for (int i = 0; i < rankers.Length; i++)
         {

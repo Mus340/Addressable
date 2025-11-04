@@ -10,4 +10,5 @@ public class ResourcesPath
     public const string NickNamePath = "UI/NickName"; 
     public const string PopupPath = "UI/Popup/"; 
     public const string GamePath = "Game/";
+    public const string SpritePath = "Sprites/";
 }

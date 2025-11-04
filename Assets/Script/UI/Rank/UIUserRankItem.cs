@@ -11,7 +11,7 @@ public class UIUserRankItem : MonoBehaviour, IDynamicScrollViewItem
     public Text nameText;
     public Text scoreText;
     public Image medalImage;
-
+    public Image bgImage;
     public Sprite[] medalSprites;
     
     private int _index;
@@ -19,8 +19,7 @@ public class UIUserRankItem : MonoBehaviour, IDynamicScrollViewItem
     public void onUpdateItem(int index)
     {
         _index = index;
-        var tier = UIMain.Ins.UiPopup.GetPopup<UIRankingPopup>(PopupType.Ranking).SelectTier;
-        var rankData = Main.Ins.MainData.RankData.GetRankData(tier.Value,index);
+        var rankData = Main.Ins.MainData.RankData.GetRank(index);
         nameText.text = rankData.Name;
         scoreText.text = rankData.MaxScore.ToString();
         rankText.text = (_index+1).ToString();
@@ -40,6 +39,15 @@ public class UIUserRankItem : MonoBehaviour, IDynamicScrollViewItem
         else
         {
             medalImage.sprite = medalSprites[3];
+        }
+
+        if (index == Main.Ins.MainData.RankData.MyRankIndex)
+        {
+            bgImage.color = new Color(0.5843138f, 0.2588235f, 1);
+        }
+        else
+        {
+            bgImage.color = new Color(0.7176471f, 0.4980392f, 1);
         }
     }
 }

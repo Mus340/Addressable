@@ -39,13 +39,11 @@ public class MainGame : MonoBehaviour
         LoadGame();
         if (UIMain.Ins.LoadComplete)
         {
-            CheckChangeTier();
         }
         else
         {
             UIMain.Ins.OnLoadComplete.Subscribe((_) =>
             {
-                CheckChangeTier();
             }).AddTo(this);
         }
     }
@@ -56,22 +54,7 @@ public class MainGame : MonoBehaviour
         InGame.Initialized();
         InGame.gameObject.SetActive(false);
     }
-
-    private void CheckChangeTier()
-    {
-        var prevTier = Enum.Parse<Tier>(Main.Ins.MainData.UserData.UserInfo.Tier);
-        var changeTier = Main.Ins.MainData.RankData.GetTier(Main.Ins.MainData.UserData.UserInfo.Score);
-        if (prevTier != changeTier)
-        {
-            Main.Ins.MainData.RankData.Remove(prevTier);
-            Main.Ins.MainData.RankData.Add(changeTier);
-            
-            Main.Ins.MainData.UserData.SaveTier(changeTier);
-            var tierPopup = UIMain.Ins.UiPopup.GetPopup<UIChangeTierPopup>(PopupType.ChangeTier);
-            tierPopup.Set(prevTier, changeTier, null);
-            tierPopup.gameObject.SetActive(true);
-        }
-    }
+    
     public void EnterGame()
     {
         UIMain.Ins.UiLobby.gameObject.SetActive(false);

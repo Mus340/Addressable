@@ -102,35 +102,7 @@ public class InGame : MonoBehaviour
     {      
         if (Score > MaxScore)
         {
-            if (MaxScore == 0)
-            {
-                MaxScore = Score;
-                Main.Ins.MainData.UserData.SaveScore(MaxScore);
-                Main.Ins.MainData.RankData.SaveAll();
-            }
-            else
-            {
-                MaxScore = Score;
-                Main.Ins.MainData.UserData.SaveScore(MaxScore);
-                Main.Ins.MainData.RankData.SaveMaxScore(MaxScore);
-            }
-            
-            var prevTier = Enum.Parse<Tier>(Main.Ins.MainData.UserData.UserInfo.Tier);
-            var changeTier = Main.Ins.MainData.RankData.GetTier(MaxScore);
-            if (prevTier != changeTier)
-            {
-                Main.Ins.MainData.UserData.SaveTier(changeTier);
-                Main.Ins.MainData.RankData.Remove(prevTier);
-                Main.Ins.MainData.RankData.Add(changeTier);
-                
-                var tierPopup = UIMain.Ins.UiPopup.GetPopup<UIChangeTierPopup>(PopupType.ChangeTier);
-                tierPopup.Set(prevTier, changeTier,null);
-                tierPopup.gameObject.SetActive(true);
-            }
-            else
-            {
-                Main.Ins.MainData.RankData.Refresh(prevTier);
-            }
+            SetNewMaxScore();
         }
         foreach (var bar in _useCubeQueue)
         {
@@ -208,51 +180,26 @@ public class InGame : MonoBehaviour
         yield return new WaitForSeconds(2f);
         if (Score > MaxScore)
         {
-            if (MaxScore == 0)
-            {
-                MaxScore = Score;
-                Main.Ins.MainData.UserData.SaveScore(MaxScore);
-                Main.Ins.MainData.RankData.SaveAll();
-            }
-            else
-            {
-                MaxScore = Score;
-                Main.Ins.MainData.UserData.SaveScore(MaxScore);
-                Main.Ins.MainData.RankData.SaveMaxScore(MaxScore);
-            }
+            SetNewMaxScore();
+        }
+        OpenRetry();
+    }
 
-            var prevTier = Enum.Parse<Tier>(Main.Ins.MainData.UserData.UserInfo.Tier);
-            var changeTier = Main.Ins.MainData.RankData.GetTier(MaxScore);
-            
-            if (prevTier != changeTier)
-            {
-                Main.Ins.MainData.UserData.SaveTier(changeTier);
-                Main.Ins.MainData.RankData.Remove(prevTier);
-                Main.Ins.MainData.RankData.Add(changeTier);
-                
-                var tierPopup = UIMain.Ins.UiPopup.GetPopup<UIChangeTierPopup>(PopupType.ChangeTier);
-                tierPopup.Set(prevTier, changeTier, OpenRetry);
-                tierPopup.gameObject.SetActive(true);
-            }
-            else
-            {
-                Main.Ins.MainData.RankData.Refresh(prevTier);
-                OpenRetry();
-                //var tier =  Enum.Parse<Tier>(Main.Ins.MainData.UserData.UserInfo.Tier);
-                //var prevRank = Main.Ins.MainData.RankData.GetRankNumber();
-                //Main.Ins.MainData.RankData.Refresh(tier);
-                //var curRank = Main.Ins.MainData.RankData.GetRankNumber();
-                //var tierPopup = UIMain.Ins.UiPopup.GetPopup<UIChangeRankPopup>(PopupType.ChangeRank);
-                //tierPopup.Open(tier,prevRank, curRank, OpenRetry);
-                //tierPopup.gameObject.SetActive(true);
-            }
+    private void SetNewMaxScore()
+    {
+        if (MaxScore == 0)
+        {
+            MaxScore = Score;
+            Main.Ins.MainData.UserData.SaveScore(MaxScore);
+            Main.Ins.MainData.RankData.SaveNewUser();
         }
         else
         {
-            OpenRetry();
+            MaxScore = Score;
+            Main.Ins.MainData.UserData.SaveScore(MaxScore);
+            Main.Ins.MainData.RankData.SaveMaxScore(MaxScore);
         }
     }
-
     private void OpenRetry()
     {
         var popup = UIMain.Ins.UiPopup.GetPopup<UIColorMatchRetryPopup>(PopupType.ColorMatchRetry);
