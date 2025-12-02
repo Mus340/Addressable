@@ -659,6 +659,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scrollView: {fileID: 7161980323828447990}
+  closeButton: {fileID: 4767112316250526560}
+  curRank: 0
+  prevRank: 0
 --- !u!1 &3952823044514441764
 GameObject:
   m_ObjectHideFlags: 0
@@ -918,7 +921,7 @@ RectTransform:
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 730.1791}
-  m_Pivot: {x: 0, y: 1}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!1 &5456326764352117260
 GameObject:
   m_ObjectHideFlags: 0
@@ -1244,7 +1247,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\uB7AD\uD06C \uC5C5"
+  m_Text: "\uC21C\uC704 \uC5C5"
 --- !u!114 &1863200498937686224
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1420,7 +1423,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8872002278439686832}
   - component: {fileID: 7355967510887515535}
-  - component: {fileID: 5125806149077418190}
+  - component: {fileID: 8130252116340893189}
   m_Layer: 0
   m_Name: RankItem
   m_TagString: Untagged
@@ -1463,7 +1466,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8843975846312857002}
   m_CullTransparentMesh: 1
---- !u!114 &5125806149077418190
+--- !u!114 &8130252116340893189
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1472,13 +1475,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 8843975846312857002}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 021e7e04e8b30aa4daadbdaf702baefc, type: 3}
+  m_Script: {fileID: 11500000, guid: 9c95b2bace874124f9956c494e5cc3fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   rankText: {fileID: 3235209823495186948}
   nameText: {fileID: 5031141914962807679}
   scoreText: {fileID: 5791665312329123567}
   medalImage: {fileID: 240355365890487777}
+  bgImage: {fileID: 8376536115605205695}
   medalSprites:
   - {fileID: 21300008, guid: 1eaee135ce037439d925cee5e41ce026, type: 3}
   - {fileID: 21300010, guid: 1eaee135ce037439d925cee5e41ce026, type: 3}

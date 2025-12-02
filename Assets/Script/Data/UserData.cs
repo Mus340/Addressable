@@ -68,10 +68,10 @@ public class UserData : MonoBehaviour
         }
     }
 
-    private void Save(Dictionary<string, object> data)
+    private async Task Save(Dictionary<string, object> data)
     {
         var uID = Login.Ins.UserID;
-        _reference.Child(uID).UpdateChildrenAsync(data).ContinueWithOnMainThread(task =>
+        await _reference.Child(uID).UpdateChildrenAsync(data).ContinueWithOnMainThread(task =>
         {
             if (task.IsCompletedSuccessfully == false)
             {
@@ -110,10 +110,10 @@ public class UserData : MonoBehaviour
         Save(new Dictionary<string, object> {{nameof(User.PlayCount), UserInfo.PlayCount}});
     }
     
-    public void SaveScore(int score)
+    public async Task SaveScore(int score)
     {
         UserInfo.Score = score;
-        Save(new Dictionary<string, object> {{nameof(User.Score), UserInfo.Score}});
+        await Save(new Dictionary<string, object> {{nameof(User.Score), UserInfo.Score}});
     }
 
 }

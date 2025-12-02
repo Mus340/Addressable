@@ -21,14 +21,14 @@ public class RankData : MonoBehaviour
     public IObservable<Unit> OnLoadComplete => _onLoadComplete;
     private Subject<Unit> _onLoadComplete = new Subject<Unit>();
     
-    public IObservable<Unit> OnUpdateMaxScore => _onUpdateMaxScore;
-    private Subject<Unit> _onUpdateMaxScore = new Subject<Unit>();
-    
+    public IObservable<(int,int)> OnUpdateRanking => _onUpdateRanking;
+    private Subject<(int,int)> _onUpdateRanking = new Subject<(int,int)>();
+
     private List<Rank> _rankList;
     private DatabaseReference _reference;
 
     private int _myRankIndex = -1;
-
+    
     public int MyRankIndex
     {
         get => _myRankIndex;
@@ -63,10 +63,31 @@ public class RankData : MonoBehaviour
 
     private void Refresh()
     {
+        var prev = MyRankIndex;
         _rankList = _rankList.OrderByDescending(r => r.MaxScore).ToList();
         MyRankIndex = GetRank(Login.Ins.UserID);
+        if (prev != MyRankIndex)
+        {
+            _onUpdateRanking.OnNext((prev, MyRankIndex));
+        }
     }
-    
+
+    public async void RemoveUser(string uID)
+    {
+        var user = _rankList.Find(p => p.UserId == uID);
+        if (user != null)
+        {
+            await Main.Ins.MainData.UserData.SaveScore(0);
+            await SaveMaxScore(0);
+            _rankList.Remove(user);
+            Refresh();
+            Debug.Log("Delete User Rank Data");
+        }
+        else
+        {
+            Debug.LogError("Cant Find Delete User");
+        }
+    }
     
     public List<Rank> GetRankList()
     {
@@ -84,13 +105,13 @@ public class RankData : MonoBehaviour
         return index;
     }
 
-    public void SaveNewUser()
+    public async Task SaveNewUser()
     {
         var data = new Rank();
         data.Name = Main.Ins.MainData.UserData.UserInfo.Name;
         data.MaxScore = Main.Ins.MainData.UserData.UserInfo.Score;
         data.UserId = Login.Ins.UserID;
-        _reference.Child(Login.Ins.UserID).SetValueAsync(data.ToDictionary()).ContinueWithOnMainThread((task) =>
+        await _reference.Child(Login.Ins.UserID).SetValueAsync(data.ToDictionary()).ContinueWithOnMainThread((task) =>
         {
             if (task.IsCompletedSuccessfully == false)
             {
@@ -100,16 +121,15 @@ public class RankData : MonoBehaviour
             {
                 _rankList.Add(data);
                 Refresh();
-                _onUpdateMaxScore.OnNext(Unit.Default);
             }
         });
     }
 
 
-    public void SaveMaxScore(int maxScore)
+    public async Task SaveMaxScore(int maxScore)
     {
         var data = new Dictionary<string, object> {{"MaxScore", maxScore}};
-        _reference.Child(Login.Ins.UserID).UpdateChildrenAsync(data).ContinueWithOnMainThread(task =>
+        await _reference.Child(Login.Ins.UserID).UpdateChildrenAsync(data).ContinueWithOnMainThread(task =>
         {
             if (task.IsCompletedSuccessfully == false)
             {
@@ -119,7 +139,6 @@ public class RankData : MonoBehaviour
             {
                 _rankList[MyRankIndex].MaxScore = maxScore;
                 Refresh();
-                _onUpdateMaxScore.OnNext(Unit.Default);
             }
         });
     }

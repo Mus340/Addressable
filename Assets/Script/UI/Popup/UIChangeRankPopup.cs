@@ -9,16 +9,34 @@ using UnityEngine.UI;
 public class UIChangeRankPopup : UIPopupPanel
 {
     public DynamicVScrollView scrollView;
-
+    public Button closeButton;
     private Action _onClose;
+
+    public int curRank;
+    public int prevRank;
+    public void Open(int prev, int cur, Action onClose)
+    {
+        this.prevRank = prev;
+        this.curRank = cur;
+        closeButton.gameObject.SetActive(false);
+        closeButton.onClick.RemoveAllListeners();
+        closeButton.onClick.AddListener(()=>
+        {
+            StopAllCoroutines();
+            scrollView.GetComponent<ScrollRect>().StopMovement();
+            onClose?.Invoke();
+        });
+        StartCoroutine(Move(prev, cur));
+    }
     
-    private IEnumerator Move(int start, int end)
+    private IEnumerator Move(int prev, int cur)
     {
         yield return null;
         scrollView.refresh();
-        MoveScrollImmediately(start);
-        StartCoroutine(MoveScrollItem(end));
+        MoveScrollImmediately(prev);
+        StartCoroutine(MoveScrollItem(cur));
     }
+    
     private void MoveScrollImmediately(int index)
     {
         var scrollRect = scrollView.GetComponent<ScrollRect>();
@@ -30,13 +48,12 @@ public class UIChangeRankPopup : UIPopupPanel
         var minY = 0f;
         var maxY = scrollView.totalItemCount * itemHeight - viewportHeight;
         targetY = Mathf.Clamp(targetY, minY, maxY);
-        scrollRect.StopMovement();
-        scrollRect.content.transform.localPosition = new Vector3(0f, targetY, 0f);
+        scrollRect.content.transform.localPosition = new Vector3(0f, targetY+(scrollRect.viewport.rect.height/2), 0f);
     }
     
     private IEnumerator MoveScrollItem(int index)
     {
-        yield return null;
+        yield return new WaitForSeconds(1.0f);
         var scrollRect = scrollView.GetComponent<ScrollRect>();
         var itemHeight = scrollView.itemPrototype.rect.height;
         var viewportHeight = scrollRect.viewport.rect.height;
@@ -46,13 +63,11 @@ public class UIChangeRankPopup : UIPopupPanel
         var minY = 0f;
         var maxY = scrollView.totalItemCount * itemHeight - viewportHeight;
         targetY = Mathf.Clamp(targetY, minY, maxY);
-        scrollRect.StopMovement();
-        scrollRect.content.transform.DOLocalMove(new Vector3(0f, targetY, 0f),1f).SetEase( Ease.OutExpo).OnComplete(
+        scrollRect.content.transform.DOLocalMove(new Vector3(0f, targetY+(scrollRect.viewport.rect.height/2), 0f), 1f).SetEase(Ease.OutExpo).OnComplete(
             () =>
             {
-                _onClose?.Invoke();
-                _onClose = null;
+                closeButton.gameObject.SetActive(true);
             });
     }
-    
+
 }

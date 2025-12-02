@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UniRx;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -175,31 +176,50 @@ public class InGame : MonoBehaviour
             _onFail.OnNext(Unit.Default);
         }
     }
+    
     private IEnumerator FailCoroutine()
     { 
         yield return new WaitForSeconds(2f);
         if (Score > MaxScore)
         {
-            SetNewMaxScore();
+            OpenChangeRankPopup();
+            yield break;
         }
         OpenRetry();
     }
 
-    private void SetNewMaxScore()
+    private async void OpenChangeRankPopup()
     {
+        var prevRank = Main.Ins.MainData.RankData.MyRankIndex;
+        foreach (var task in SetNewMaxScore())
+        {
+            await task;
+        }
+        var curRank = Main.Ins.MainData.RankData.MyRankIndex;
+        Debug.Log($"TEST : {prevRank}.{curRank}");
+        var popup = UIMain.Ins.UiPopup.GetPopup<UIChangeRankPopup>(PopupType.ChangeRank);
+        popup.gameObject.SetActive(true);
+        popup.Open(prevRank, curRank, OpenRetry);
+    }
+    
+    private List<Task> SetNewMaxScore()
+    {
+        var tasks = new List<Task>();
         if (MaxScore == 0)
         {
             MaxScore = Score;
-            Main.Ins.MainData.UserData.SaveScore(MaxScore);
-            Main.Ins.MainData.RankData.SaveNewUser();
+            tasks.Add(Main.Ins.MainData.UserData.SaveScore(MaxScore));
+            tasks.Add(Main.Ins.MainData.RankData.SaveNewUser());
         }
         else
         {
             MaxScore = Score;
-            Main.Ins.MainData.UserData.SaveScore(MaxScore);
-            Main.Ins.MainData.RankData.SaveMaxScore(MaxScore);
+            tasks.Add(Main.Ins.MainData.UserData.SaveScore(MaxScore));
+            tasks.Add(Main.Ins.MainData.RankData.SaveMaxScore(MaxScore));
         }
+        return tasks;
     }
+
     private void OpenRetry()
     {
         var popup = UIMain.Ins.UiPopup.GetPopup<UIColorMatchRetryPopup>(PopupType.ColorMatchRetry);

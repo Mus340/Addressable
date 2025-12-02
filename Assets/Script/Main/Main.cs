@@ -67,4 +67,14 @@ public class Main : MonoBehaviour
         _onLoadComplete.Dispose();
         _onLoadComplete = null;
     }
+
+#if UNITY_EDITOR || Test_Mode
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            MainData.RankData.RemoveUser(Login.Ins.UserID);
+        }
+    }
+#endif
 }

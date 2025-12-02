@@ -22,18 +22,23 @@ public class PlayerController : MonoBehaviour
     
     private void Update()
     {
-#if UNITY_EDITOR || UNITY_STANDALONE
-        if (Input.GetMouseButtonDown(0))
-        {
-            _isSwiping = true;
-            _startPos = Input.mousePosition;
-        }
-        else if (Input.GetMouseButtonUp(0) && _isSwiping)
-        {
-            Vector2 endPos = Input.mousePosition;
-            DetectSwipe(_startPos, endPos);
-            _isSwiping = false;
-        }
+#if UNITY_EDITOR || UNITY_STANDALONE || Test_Mode
+        //if (Input.GetMouseButtonDown(0))
+        //{
+        //    _isSwiping = true;
+        //    _startPos = Input.mousePosition;
+        //}
+        //else if (Input.GetMouseButtonUp(0) && _isSwiping)
+        //{
+        //    Vector2 endPos = Input.mousePosition;
+        //    DetectSwipe(_startPos, endPos);
+        //    _isSwiping = false;
+        //}
+
+        if (Input.GetKeyDown(KeyCode.A)) { _onMove.OnNext(PlayerMove.Left); }
+        if (Input.GetKeyDown(KeyCode.D)) { _onMove.OnNext(PlayerMove.Right); }
+        if (Input.GetKeyDown(KeyCode.W)) { _onMove.OnNext(PlayerMove.Forward); }
+        if (Input.GetKeyDown(KeyCode.S)) { _onMove.OnNext(PlayerMove.Back); }
 #else
         // 터치 (모바일)
         if (Input.touchCount > 0)

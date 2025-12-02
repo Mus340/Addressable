@@ -25,16 +25,21 @@ public class UIRankingPopup : UIPopupPanel
             {
                 Initialize();
             }).AddTo(this);
-        }
+        } 
     }
 
     private void Initialize()
     {
         _isMoveScroll = true;
         ScrollView.totalItemCount = Main.Ins.MainData.RankData.GetRankList().Count;
-        Main.Ins.MainData.RankData.OnUpdateMaxScore.Subscribe((_) =>
+
+        Main.Ins.MainData.RankData.OnUpdateRanking.Subscribe((rank) =>
         {
-            Debug.Log("New Max Score");
+            Debug.Log($"Change Ranking : prev.{rank.Item1}, cur.{rank.Item2}");
+            if (rank.Item1 == -1 || rank.Item2 == -1)
+            {
+                ScrollView.totalItemCount = Main.Ins.MainData.RankData.GetRankList().Count;
+            }
             _isMoveScroll = true;
         }).AddTo(this);
     }
@@ -61,21 +66,6 @@ public class UIRankingPopup : UIPopupPanel
         StartCoroutine(MoveScrollItem(index));
         _isMoveScroll = false;                                                                                                             
     }
-
-    private void MoveScrollImmediately(int index)
-    {
-        var scrollRect = ScrollView.GetComponent<ScrollRect>();
-        var itemHeight = ScrollView.itemPrototype.rect.height;
-        var viewportHeight = scrollRect.viewport.rect.height;
-
-        var targetY = itemHeight * (index + 0.5f) - viewportHeight / 2f;
-
-        var minY = 0f;
-        var maxY = ScrollView.totalItemCount * itemHeight - viewportHeight;
-        targetY = Mathf.Clamp(targetY, minY, maxY);
-        scrollRect.StopMovement();
-        scrollRect.content.transform.localPosition = new Vector3(0f, targetY+500.0f, 0f);
-    }
     
     private IEnumerator MoveScrollItem(int index)
     {
@@ -90,7 +80,7 @@ public class UIRankingPopup : UIPopupPanel
         var maxY = ScrollView.totalItemCount * itemHeight - viewportHeight;
         targetY = Mathf.Clamp(targetY, minY, maxY);
         scrollRect.StopMovement();
-        scrollRect.content.transform.DOLocalMove(new Vector3(0f, targetY+500.0f, 0f),1f).SetEase( Ease.OutExpo).OnComplete(
+        scrollRect.content.transform.DOLocalMove(new Vector3(0f, targetY+(scrollRect.viewport.rect.height/2), 0f),1f).SetEase( Ease.OutExpo).OnComplete(
             () =>
             {
             });
